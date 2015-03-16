@@ -4,21 +4,19 @@ chrome.runtime.sendMessage({
   subject: 'showPageAction'
 });
 
-// listens for message from popup and fills google search form with values depending on message subject
+// ELS auto-fill message
 chrome.runtime.onMessage.addListener(function(msg, sender, response) {
-  if ((msg.from === 'popup') && (msg.subject === 'check_hours')) {
-    $('#lst-ib').val(msg.hours);
-  }
-
-  if ((msg.from === 'popup') && (msg.subject === 'check_price')) {
-    $('#lst-ib').val(msg.price);
+  if ((msg.from === 'popup') && (msg.subject === 'ELS_copy_machine')) {
+    if ($('#EQUIPMENT_stock').val() != msg.stock_number) {
+      alert("You're trying to copy a different machine. Are you sure you want to do that?");
+    } else if ($('#EQUIPMENT_stock').val() === msg.stock_number) {
+      $('#EQUIPMENT_year').val(msg.year).effect('highlight', 'slow');
+      $('#EQUIPMENT_make').val(msg.make).effect('highlight', 'slow');
+      $('#EQUIPMENT_model').val(msg.model).effect('highlight', 'slow');
+      $('#EQUIPMENT_serial').val(msg.serial).effect('highlight', 'slow');
+      $('#EQUIPMENT_hrs').val(msg.hours).effect('highlight', 'slow');
+      $('#EQUIPMENT_price').val(msg.price).effect('highlight', 'slow');
+      $('#EQUIPMENT_ecity').val(msg.location).effect('highlight', 'slow');
+    }
   }
 });
-
-
-// trying to set the google search form automatically with the hours of a machine in the popup
-// function setGoogleForm(input) {
-//   $('#lst-ib').val(input);
-// }
-
-// chrome.runtime.sendMessage({ from: 'content', subject: 'searchFormValue' }, setGoogleForm);

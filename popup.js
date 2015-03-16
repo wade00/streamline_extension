@@ -6,55 +6,50 @@ $(window).ready(function() {
       var stock_number = value['stock_number']
       $('#popup-inventory').append(
         "<tr id='machine_" + stock_number + "'>" +
-        "<td>" + stock_number + "</td>" +
+        "<td id='stock_number'>" + stock_number + "</td>" +
         "<td id='" + stock_number + "_make'>" + value['machine_make'] + "</td>" +
         "<td id='" + stock_number + "_model'>" + value['machine_model'] + "</td>" +
         "<td id='" + stock_number + "_type'>" + value['machine_type'] + "</td>" +
-        "<td>" + "<button id='copy_" + value['stock_number'] + "'>Copy</button></li>" + "</td>" +
+        "<td>" + "<button class='copy_machine' id=" + value['stock_number'] + ">Copy</button></li>" + "</td>" +
+        "<td id='" + stock_number + "_year' hidden>" + value['year'] + "</td>" +
         "<td id='" + stock_number + "_hours' hidden>" + value['hours'] + "</td>" +
         "<td id='" + stock_number + "_price' hidden>" + value['price'] + "</td>" +
+        "<td id='" + stock_number + "_location' hidden>" + value['location'] + "</td>" +
+        "<td id='" + stock_number + "_serial' hidden>" + value['serial'] + "</td>" +
         "</tr>"
       );
     });
   });
 });
 
-// click copy button to send hours info to content script
-$(window).ready(function() {
-  var hours = $('#hours').html();
-  $('#btn-hours').click(function() {
-    chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, function(tabs) {
-      chrome.tabs.sendMessage(
-        tabs[0].id,
-        {from: 'popup', subject: 'check_hours', hours: hours}
-      );
-    });
+// Click copy button to update multiple fields on ELS
+$(window).ready('.copy_machine').click(function(button) {
+  var stock_number = button.target.id;
+  var year         = $('#' + stock_number + '_year').html();
+  var make         = $('#' + stock_number + '_make').html();
+  var model        = $('#' + stock_number + '_model').html();
+  var type         = $('#' + stock_number + '_type').html();
+  var serial       = $('#' + stock_number + '_serial').html();
+  var hours        = $('#' + stock_number + '_hours').html();
+  var price        = $('#' + stock_number + '_price').html();
+  var location     = $('#' + stock_number + '_location').html();
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, function(tabs) {
+    chrome.tabs.sendMessage(
+      tabs[0].id,
+      {from: 'popup',
+      subject: 'ELS_copy_machine',
+      stock_number: stock_number,
+      year: year,
+      make: make,
+      model: model,
+      type: type,
+      serial: serial,
+      hours: hours,
+      price: price,
+      location: location}
+    );
   });
 });
-
-// click copy button to send price info to content script
-$(window).ready(function() {
-  var price = $('#39999_price').html();
-  $('#copy_39999').click(function() {
-    chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, function(tabs) {
-      chrome.tabs.sendMessage(
-        tabs[0].id,
-        {from: 'popup', subject: 'check_price', price: price}
-      );
-    });
-  });
-});
-
-// trying to send content script the hours of a machine
-// chrome.runtime.onMessage.addListener(function(msg, sender, response) {
-//   if ((msg.from === 'content') && (msg.subject === 'searchFormValue')) {
-//     var hours = '33'; //$('#39999_hours').html();
-//     response(hours);
-//   }
-// });

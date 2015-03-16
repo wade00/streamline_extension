@@ -11,8 +11,8 @@
     },
 
     "content_scripts": [{
-        "matches": ["https://*.google.com/*"],
-        "js": ["jquery.js", "content.js"]
+        "matches": ["http://*.equipmentlocator.com/*", "https://*.google.com/*"],
+        "js": ["jquery.js", "jquery-ui.js", "content.js"]
     }],
 
     "page_action": {
