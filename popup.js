@@ -40,7 +40,8 @@ $(window).ready('.copy_machine').click(function(button) {
     chrome.tabs.sendMessage(
       tabs[0].id,
       {from: 'popup',
-      subject: 'ELS_copy_machine',
+      subject: 'copy_machine',
+      url: tabs[0].url,
       stock_number: stock_number,
       year: year,
       make: make,
