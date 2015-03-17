@@ -17,7 +17,6 @@
     }],
 
     "page_action": {
-        "default_title": "Test Extension",
-        "default_popup": "popup.html"
+        "default_title": "Test Extension"
     }
 }

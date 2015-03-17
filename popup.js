@@ -1,4 +1,4 @@
-// Sets popup inventory by pulling from machine-demo-app.herokuapp.com
+Sets popup inventory by pulling from machine-demo-app.herokuapp.com
 $(window).ready(function() {
   var streamlineAPI = 'https://machine-demo-app.herokuapp.com/machines.json';
   $.getJSON(streamlineAPI, function(data) {
