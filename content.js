@@ -6,24 +6,58 @@ chrome.runtime.sendMessage({
 
 // Listens for sidebar message from background script
 function handleMessage(msg, sender, sendResponse) {
-if (msg.callFunction == "toggleSidebar") {
+  if (msg.callFunction == "toggleSidebar") {
     toggleSidebar();
   }
 }
 chrome.runtime.onMessage.addListener(handleMessage);
 
+window.onload = displayButton();
+
+// Inject show inventory button into page
+var buttonDisplayed = true;
+function displayButton() {
+  var inventoryButton = document.createElement('div');
+  inventoryButton.id = "showInventoryButton";
+  inventoryButton.innerHTML = "Show Inventory";
+  inventoryButton.style.cssText = "\
+    position:fixed;\
+    top:0px;\
+    right:0px;\
+    width:8%;\
+    height:4%;\
+    background:rgba(255,255,255,0.8);\
+    box-shadow: 0 0 5em black;\
+    z-index:999999;\
+    cursor:pointer;\
+    font-size:14px;\
+    text-align:center;\
+  ";
+  document.body.appendChild(inventoryButton);
+  buttonDisplayed = true;
+}
+
+$('#showInventoryButton').click(function() {
+  if(buttonDisplayed) {
+    var element = document.getElementById('showInventoryButton');
+    element.parentNode.removeChild(element);
+    buttonDisplayed = false;
+  }
+  toggleSidebar();
+});
+
 // Inject sidebar into page
 var sidebarOpen = false;
 function toggleSidebar() {
   if(sidebarOpen) {
-    var el = document.getElementById('mySidebar');
-    el.parentNode.removeChild(el);
+    var element = document.getElementById('inventorySidebar');
+    element.parentNode.removeChild(element);
     sidebarOpen = false;
   }
   else {
     var $body = document.body;
     var sidebar = document.createElement('div');
-    sidebar.id = "mySidebar";
+    sidebar.id = "inventorySidebar";
     sidebar.innerHTML = "\
       <h1>My Inventory</h1>\
       <table>\
@@ -44,6 +78,7 @@ function toggleSidebar() {
     $body.appendChild(sidebar);
     sidebarOpen = true;
 
+    // Loads inventory into sidebar by parsing json from heroku site
     var streamlineAPI = 'https://machine-demo-app.herokuapp.com/machines.json';
     $.getJSON(streamlineAPI, function(data) {
       $(data).each(function(index, value) {
@@ -67,40 +102,49 @@ function toggleSidebar() {
   }
 }
 
-var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
-var eaREGEX = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
+$(document).on('click', '.copy_machine', function(btn) {
+  var stock_number = btn.target.id;
+  var year         = $('#' + stock_number + '_year').html();
+  var make         = $('#' + stock_number + '_make').html();
+  var model        = $('#' + stock_number + '_model').html();
+  var type         = $('#' + stock_number + '_type').html();
+  var serial       = $('#' + stock_number + '_serial').html();
+  var hours        = $('#' + stock_number + '_hours').html();
+  var price        = $('#' + stock_number + '_price').html();
+  var location     = $('#' + stock_number + '_location').html();
 
-// Listens for machine info message that sends when 'copy' is clicked in popup
-chrome.runtime.onMessage.addListener(function(msg, sender, response) {
-  if ((msg.from === 'popup') && (msg.subject === 'copy_machine')) {
+  var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
+  var eaREGEX = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
+  var siteURL = document.URL;
 
-    // ELS autofill
-    if (elsREGEX.test(msg.url)) {
-      if ($('#EQUIPMENT_stock').val() != msg.stock_number) {
-        alert("I can't copy stock number" + " " + msg.stock_number + " " + "into stock number" + " " + $('#EQUIPMENT_stock').val());
-      } else if ($('#EQUIPMENT_stock').val() === msg.stock_number) {
-        $('#EQUIPMENT_year').val(msg.year).effect('highlight', 'slow');
-        $('#EQUIPMENT_make').val(msg.make).effect('highlight', 'slow');
-        $('#EQUIPMENT_model').val(msg.model).effect('highlight', 'slow');
-        $('#EQUIPMENT_serial').val(msg.serial).effect('highlight', 'slow');
-        $('#EQUIPMENT_hrs').val(msg.hours).effect('highlight', 'slow');
-        $('#EQUIPMENT_price').val(msg.price).effect('highlight', 'slow');
-        $('#EQUIPMENT_ecity').val(msg.location).effect('highlight', 'slow');
-      }
+  // ELS autofill
+  if (elsREGEX.test(siteURL)) {
+    if ($('#EQUIPMENT_stock').val() != stock_number) {
+      alert("I can't copy stock number" + " " + stock_number + " " + "into stock number" + " " + $('#EQUIPMENT_stock').val());
     }
+    else if ($('#EQUIPMENT_stock').val() === stock_number) {
+      $('#EQUIPMENT_year').val(year).effect('highlight', 'slow');
+      $('#EQUIPMENT_make').val(make).effect('highlight', 'slow');
+      $('#EQUIPMENT_model').val(model).effect('highlight', 'slow');
+      $('#EQUIPMENT_serial').val(serial).effect('highlight', 'slow');
+      $('#EQUIPMENT_hrs').val(hours).effect('highlight', 'slow');
+      $('#EQUIPMENT_price').val(price).effect('highlight', 'slow');
+      $('#EQUIPMENT_ecity').val(location).effect('highlight', 'slow');
+    }
+  }
 
-    // Equipment Alley autofill
-    if (eaREGEX.test(msg.url)) {
-      if ($('#STOCK').val() != msg.stock_number) {
-        alert("You're trying to copy a different machine. Are you sure you want to do that?");
-      } else if ($('#STOCK').val() === msg.stock_number) {
-        $('#YEAR').val(msg.year).effect('highlight', 'slow');
-        $('#MFG').val(msg.make).effect('highlight', 'slow');
-        $('#MODEL').val(msg.model).effect('highlight', 'slow');
-        $('#SERIAL').val(msg.serial).effect('highlight', 'slow');
-        $('#HOURS').val(msg.hours).effect('highlight', 'slow');
-        $('#_RETAIL_PRICE').val(msg.price).effect('highlight', 'slow');
-      }
+  // Equipment Alley autofill
+  if (eaREGEX.test(siteURL)) {
+    if ($('#STOCK').val() != stock_number) {
+      alert("You're trying to copy a different machine. Are you sure you want to do that?");
+    }
+    else if ($('#STOCK').val() === stock_number) {
+      $('#YEAR').val(year).effect('highlight', 'slow');
+      $('#MFG').val(make).effect('highlight', 'slow');
+      $('#MODEL').val(model).effect('highlight', 'slow');
+      $('#SERIAL').val(serial).effect('highlight', 'slow');
+      $('#HOURS').val(hours).effect('highlight', 'slow');
+      $('#_RETAIL_PRICE').val(price).effect('highlight', 'slow');
     }
   }
 });

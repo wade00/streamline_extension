@@ -12,7 +12,9 @@
     },
 
     "content_scripts": [{
-        "matches": ["http://*.equipmentlocator.com/*", "https://*.equipmentalley.com/*"],
+        "matches": ["http://*.equipmentlocator.com/*",
+                    "https://*.equipmentalley.com/*",
+                    "https://dscrm.sandhills.com/*"],
         "js": ["jquery.js", "jquery-ui.js", "content.js"]
     }],
 
