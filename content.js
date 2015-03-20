@@ -12,9 +12,8 @@ function handleMessage(msg, sender, sendResponse) {
 }
 chrome.runtime.onMessage.addListener(handleMessage);
 
-window.onload = displayButton();
-
 // Inject show inventory button into page
+window.onload = displayButton();
 var buttonDisplayed = true;
 function displayButton() {
   var inventoryButton = document.createElement('div');
@@ -115,12 +114,16 @@ $(document).on('click', '.copy_machine', function(btn) {
 
   var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
   var eaREGEX = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
+  var mtREGEX = (/\w+:\/\/dscrm.sandhills.\w+\/*\S*/i);
   var siteURL = document.URL;
 
-  // ELS autofill
+  // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
     if ($('#EQUIPMENT_stock').val() != stock_number) {
-      alert("I can't copy stock number" + " " + stock_number + " " + "into stock number" + " " + $('#EQUIPMENT_stock').val());
+      alert("I can't copy stock number" + " " +
+             stock_number + " " +
+             "into stock number" + " " +
+             $('#EQUIPMENT_stock').val());
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {
       $('#EQUIPMENT_year').val(year).effect('highlight', 'slow');
@@ -136,7 +139,10 @@ $(document).on('click', '.copy_machine', function(btn) {
   // Equipment Alley autofill
   if (eaREGEX.test(siteURL)) {
     if ($('#STOCK').val() != stock_number) {
-      alert("You're trying to copy a different machine. Are you sure you want to do that?");
+      alert("I can't copy stock number" + " " +
+             stock_number + " " +
+             "into stock number" + " " +
+             $('#STOCK').val());
     }
     else if ($('#STOCK').val() === stock_number) {
       $('#YEAR').val(year).effect('highlight', 'slow');
@@ -145,6 +151,42 @@ $(document).on('click', '.copy_machine', function(btn) {
       $('#SERIAL').val(serial).effect('highlight', 'slow');
       $('#HOURS').val(hours).effect('highlight', 'slow');
       $('#_RETAIL_PRICE').val(price).effect('highlight', 'slow');
+    }
+  }
+
+  // Machinery Trader DSCRM autofill
+  if (mtREGEX.test(siteURL)) {
+    // Find iframes on page
+    var $contentIFrameContents = $('#contentIFrame').contents();
+    var $iframeCatMakeModelContents = $contentIFrameContents.find('#IFRAME_CatMakeModel').contents();
+    var $iframeSpecsContents = $contentIFrameContents.find('#IFRAME_Specs').contents();
+
+    var mtStockNumber = $contentIFrameContents.find('#sads_stocknumber');
+    var mtYear = $contentIFrameContents.find('#sads_year');
+    var mtMake = $iframeCatMakeModelContents.find('#crm_txtTypedManufacturer'); // text field - select if necessary
+    var mtModel = $iframeCatMakeModelContents.find('#crm_txtTypedModel'); // text field - use select if necessary
+    var mtType = $iframeCatMakeModelContents.find('#crm_ddlCategory'); // select - need to log values
+    var mtSerial = $contentIFrameContents.find('#sads_serialnumber');
+    var mtHours = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
+
+    // need to figure out price and location (table not currently displayed)
+
+    if ($(mtStockNumber).val() != stock_number) {
+      alert("I can't copy stock number" + " " +
+             stock_number + " " +
+             "into stock number" + " " +
+             $(mtStockNumber).val());
+    }
+    else if ($(mtStockNumber).val() === stock_number) {
+      // Removes display:none from all tables
+      $('.ms-crm-InlineTabBody').show('slow');
+
+      // // Fills forms
+      // $(mtYear).val(parseInt(year) - 1899).effect('highlight', 'slow'); // option select
+      // $(mtMake).val(make.toUpperCase()).effect('highlight', 'slow');
+      // $(mtModel).val(model).effect('highlight', 'slow');
+      // $(mtSerial).val(serial).effect('highlight', 'slow');
+      // $(mtHours).val(hours).effect('highlight', 'slow');
     }
   }
 });
