@@ -15,7 +15,8 @@
         "matches": ["http://*.equipmentlocator.com/*",
                     "https://*.equipmentalley.com/*",
                     "https://dscrm.sandhills.com/*"],
-        "js": ["jquery.js", "jquery-ui.js", "content.js"]
+        "js": ["jquery.js", "jquery-ui.js", "content.js"],
+        "css": ["popup.css"]
     }],
 
     "page_action": {

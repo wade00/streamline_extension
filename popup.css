@@ -1,33 +1,37 @@
-html, body {
-  width: 100%;
+#inventorySidebar {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: 25%;
   height: 100%;
-  box-sizing: border-box;
+  padding: 2em;
+  background: #262D3E;
+  color: #EEE;
+  text-align: center;
+  box-shadow: 5px 0 4em black;
+  z-index: 999999;
+  overflow: scroll;
+  display: none;
 }
 
-*, *:before, *:after {
-  box-sizing: inherit;
+#inventory tr {
+  height: 60px;
+  width: 100%;
+  color: #74829E;
+}
+#inventory tr:hover {
+  background: #1E2430;
+  color: #EEE;
 }
 
-body {
-  margin: 0;
-  padding:0;
-  font-family:'Helvetica', sans-serif;
-  background-color: #FDFDFD;
-}
-
-#popup-inventory {
-  width: 500px;
-  margin: 0;
-  padding: 0;
-}
-
-tr {
-  height: 40px;
-  padding: 10px;
-  font-size: 15px;
-}
-
-tr:hover {
-  background-color: #F7F7F7;
+.machine-preview-cell {
+  white-space: nowrap;
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
+}
+
+.machine-preview-description {
+  height: 30px;
 }
