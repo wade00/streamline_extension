@@ -14,68 +14,88 @@ chrome.runtime.onMessage.addListener(handleMessage);
 
 // Inject show inventory button into page
 window.onload = displayButton();
-var buttonDisplayed = true;
+var buttonDisplayed;
 function displayButton() {
   var inventoryButton = document.createElement('div');
   inventoryButton.id = "showInventoryButton";
-  inventoryButton.innerHTML = "Show Inventory";
-  inventoryButton.style.cssText = "\
-    position:fixed;\
-    top:0px;\
-    right:0px;\
-    width:8%;\
-    height:4%;\
-    background:rgba(255,255,255,0.8);\
-    box-shadow: 0 0 5em black;\
-    z-index:999999;\
-    cursor:pointer;\
-    font-size:14px;\
-    text-align:center;\
-  ";
+  $(inventoryButton).html("Show Inventory");
+  $(inventoryButton).css({
+    'position': 'fixed',
+    'top': '0px',
+    'right': '0px',
+    'width': '8%',
+    'height': '4%',
+    'background': 'rgba(255,255,255,0.8)',
+    'box-shadow': '0 0 5em black',
+    'z-index': '999999',
+    'cursor': 'pointer',
+    'font-size':'14px',
+    'text-align': 'center'
+  });
   document.body.appendChild(inventoryButton);
   buttonDisplayed = true;
 }
 
-$('#showInventoryButton').click(function() {
-  if(buttonDisplayed) {
-    var element = document.getElementById('showInventoryButton');
-    element.parentNode.removeChild(element);
+$(document).on('click', '#showInventoryButton', function() {
+  if (buttonDisplayed) {
+    var inventoryButton = document.getElementById('showInventoryButton');
+    inventoryButton.parentNode.removeChild(inventoryButton);
     buttonDisplayed = false;
   }
   toggleSidebar();
 });
 
 // Inject sidebar into page
-var sidebarOpen = false;
+var sidebarOpen;
+var sidebarLoaded = false;
 function toggleSidebar() {
-  if(sidebarOpen) {
-    var element = document.getElementById('inventorySidebar');
-    element.parentNode.removeChild(element);
-    sidebarOpen = false;
+  if (sidebarLoaded) {
+    $('#inventorySidebar').toggle('slide', {'direction': 'right'}, 1000);
+    if (sidebarOpen) {
+      $('body').animate({'width': '100%'}, 1000);
+      sidebarOpen = false;
+    }
+    else {
+      $('body').animate({'width': '75%'}, 1000);
+      sidebarOpen = true;
+    }
+    // need to get content source attribute working to refresh iframes in MT
+    $('#contentIFrame').attr('contentsrc', function (i, val) {
+      return val;
+    });
   }
   else {
-    var $body = document.body;
     var sidebar = document.createElement('div');
     sidebar.id = "inventorySidebar";
-    sidebar.innerHTML = "\
+    $(sidebar).html("\
       <h1>My Inventory</h1>\
+      <div id='close-popup'>x</div>\
       <table>\
       <tbody id='inventory'>\
       </tbody>\
       </table>\
-    ";
-    sidebar.style.cssText = "\
-      position:fixed;\
-      top:0px;\
-      right:0px;\
-      width:25%;\
-      height:100%;\
-      background:white;\
-      box-shadow: 0 0 5em black;\
-      z-index:999999;\
-    ";
-    $body.appendChild(sidebar);
-    sidebarOpen = true;
+    ");
+    $(sidebar).css({
+      'position': 'fixed',
+      'top': '0px',
+      'right': '0px',
+      'width': '25%',
+      'height': '100%',
+      'background':'white',
+      'box-shadow': '0 0 5em black',
+      'z-index': '999999',
+      'display': 'none'
+    });
+    $('body').append(sidebar);
+    $(sidebar).toggle('slide', {'direction': 'right'}, 1000);
+    $('body').animate({'width': '75%'}, 1000);
+    $('#close-popup').css({
+                          'position': 'fixed',
+                          'top': '10px',
+                          'right': '10px',
+                          'font-size': '16px',
+                          'cursor': 'pointer'
+                          });
 
     // Loads inventory into sidebar by parsing json from heroku site
     var streamlineAPI = 'https://machine-demo-app.herokuapp.com/machines.json';
@@ -94,12 +114,25 @@ function toggleSidebar() {
           "<td id='" + stock_number + "_price' hidden>" + value['price'] + "</td>" +
           "<td id='" + stock_number + "_location' hidden>" + value['location'] + "</td>" +
           "<td id='" + stock_number + "_serial' hidden>" + value['serial'] + "</td>" +
+          "<td id='" + stock_number + "_description' hidden>" + value['description'] + "</td>" +
           "</tr>"
         );
       });
     });
+    sidebarOpen = true;
+    sidebarLoaded = true;
+    // need to get content source attribute working to refresh iframes in MT
+    $('#contentIFrame').attr('contentsrc', function (i, val) {
+      return val;
+    });
   }
 }
+
+// Click 'x' to close sidebar
+$(document).on('click', '#close-popup', function() {
+  toggleSidebar();
+  displayButton();
+});
 
 $(document).on('click', '.copy_machine', function(btn) {
   var stock_number = btn.target.id;
@@ -111,6 +144,7 @@ $(document).on('click', '.copy_machine', function(btn) {
   var hours        = $('#' + stock_number + '_hours').html();
   var price        = $('#' + stock_number + '_price').html();
   var location     = $('#' + stock_number + '_location').html();
+  var description     = $('#' + stock_number + '_description').html();
 
   var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
   var eaREGEX = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
@@ -119,11 +153,12 @@ $(document).on('click', '.copy_machine', function(btn) {
 
   // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
-    if ($('#EQUIPMENT_stock').val() != stock_number) {
+    if ($('#EQUIPMENT_stock').val() !== stock_number) {
       alert("I can't copy stock number" + " " +
-             stock_number + " " +
-             "into stock number" + " " +
-             $('#EQUIPMENT_stock').val());
+            stock_number + " " +
+            "into stock number" + " " +
+            $('#EQUIPMENT_stock').val()
+           );
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {
       $('#EQUIPMENT_year').val(year).effect('highlight', 'slow');
@@ -138,19 +173,45 @@ $(document).on('click', '.copy_machine', function(btn) {
 
   // Equipment Alley autofill
   if (eaREGEX.test(siteURL)) {
-    if ($('#STOCK').val() != stock_number) {
+    if ($('#STOCK').val() !== stock_number) {
       alert("I can't copy stock number" + " " +
-             stock_number + " " +
-             "into stock number" + " " +
-             $('#STOCK').val());
+            stock_number + " " +
+            "into stock number" + " " +
+            $('#STOCK').val()
+           );
     }
     else if ($('#STOCK').val() === stock_number) {
-      $('#YEAR').val(year).effect('highlight', 'slow');
-      $('#MFG').val(make).effect('highlight', 'slow');
-      $('#MODEL').val(model).effect('highlight', 'slow');
-      $('#SERIAL').val(serial).effect('highlight', 'slow');
-      $('#HOURS').val(hours).effect('highlight', 'slow');
-      $('#_RETAIL_PRICE').val(price).effect('highlight', 'slow');
+      if ($('#Se_CategoryID').val() === "") {
+        alert("You haven't chosen a category. Please select something first.");
+      }
+
+      if ($('#MFG').val() === "") {
+        alert("You haven't chosen a manufacturer. Please select something first.");
+      }
+
+      if ($('#MODEL').val() !== model) {
+        $('#MODEL').val(model).effect('highlight', 'slow');
+      }
+
+      if ($('#YEAR').val() !== year) {
+        $('#YEAR').val(year).effect('highlight', 'slow');
+      }
+
+      if ($('#SERIAL').val() !== serial) {
+        $('#SERIAL').val(serial).effect('highlight', 'slow');
+      }
+
+      if ($('#HOURS').val() !== hours) {
+        $('#HOURS').val(hours).effect('highlight', 'slow');
+      }
+
+      if ($('#_RETAIL_PRICE').val() !== price) {
+        $('#_RETAIL_PRICE').val(price).effect('highlight', 'slow');
+      }
+
+      if ($('[name="DESCRIPTION"]').val() !== description) {
+        $('[name="DESCRIPTION"]').val(description).effect('highlight', 'slow');
+      }
     }
   }
 
@@ -171,22 +232,20 @@ $(document).on('click', '.copy_machine', function(btn) {
 
     // need to figure out price and location (table not currently displayed)
 
-    if ($(mtStockNumber).val() != stock_number) {
+    if (mtStockNumber.val() !== stock_number) {
       alert("I can't copy stock number" + " " +
-             stock_number + " " +
-             "into stock number" + " " +
-             $(mtStockNumber).val());
+            stock_number + " " +
+            "into stock number" + " " +
+            mtStockNumber.val()
+           );
     }
-    else if ($(mtStockNumber).val() === stock_number) {
-      // Removes display:none from all tables
-      $('.ms-crm-InlineTabBody').show('slow');
-
-      // // Fills forms
-      // $(mtYear).val(parseInt(year) - 1899).effect('highlight', 'slow'); // option select
-      // $(mtMake).val(make.toUpperCase()).effect('highlight', 'slow');
-      // $(mtModel).val(model).effect('highlight', 'slow');
-      // $(mtSerial).val(serial).effect('highlight', 'slow');
-      // $(mtHours).val(hours).effect('highlight', 'slow');
+    else if (mtStockNumber.val() === stock_number) {
+      // Fills forms
+      $(mtYear).val(parseInt(year) - 1899).effect('highlight', 'slow'); // option select
+      $(mtMake).val(make.toUpperCase()).effect('highlight', 'slow');
+      $(mtModel).val(model).effect('highlight', 'slow');
+      $(mtSerial).val(serial).effect('highlight', 'slow');
+      $(mtHours).val(hours).effect('highlight', 'slow');
     }
   }
 });
