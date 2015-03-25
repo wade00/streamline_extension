@@ -1,0 +1,122 @@
+#inventorySidebar {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: 25%;
+  height: 100%;
+  padding: 0;
+  background: #4A5063;
+  color: #EEE;
+  font-size: 16px;
+  font-family: Helvetica, Arial, 'sans-serif';
+  box-shadow: 5px 0 4em black;
+  z-index: 999999;
+  overflow: scroll;
+  display: none;
+  font-weight: normal;
+}
+
+.divider {
+  margin: 0;
+  border-top: 1px solid #636875;
+  border-bottom: 1px solid #6E7382;
+}
+
+.header {
+  text-align: center;
+  background: #434859;
+}
+
+#close-popup {
+  float: right;
+  font-size: 20px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+  padding-right: 10px;
+  cursor: pointer;
+}
+
+.streamline-logo {
+  margin: 0;
+  padding: 20px 0;
+  color: #CCC;
+  font-size: 24px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+}
+
+.my-inventory-header {
+  color: #6D7886;
+  padding-left: 20px;
+  margin-top: 20px;
+  clear: both;
+  font-size: 18px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+}
+
+.inventory-table-container {
+  height: 80%;
+  overflow: scroll;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-left: 4px solid #4A5063;
+  border-right: 4px solid #4A5063;
+  background: #6E7382;
+}
+
+.machine-preview {
+  height: 50px;
+  border-top: 1px solid #4D5463;
+}
+
+.machine-preview:hover {
+  background: #394152;
+  height: 50px;
+  color: #EFF1F4;
+  border-left: 4px solid #BEA63F;
+}
+
+.machine-preview:hover .copy-machine {
+  height: 46px;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.machine-preview-cell {
+  padding-left: 20px;
+  padding-right: 10px;
+  overflow: hidden;
+  max-width: 300px;
+  height: 50px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.machine-preview-cell small {
+  color: #BBB;
+  font-size: 12px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+}
+
+.machine-preview-cell:hover small {
+  color: #EFF1F4;
+}
+
+.stock-number {
+  color: #EFF1F4;
+  font-size: 16px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.copy-machine {
+  display: none;
+  font-size: 10px;
+  font-family: "Helvetica", "Arial", "sans-serif";
+  color: #BEA63F;
+}

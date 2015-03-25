@@ -18,23 +18,41 @@ var buttonDisplayed;
 function displayButton() {
   var inventoryButton = document.createElement('div');
   inventoryButton.id = "showInventoryButton";
-  $(inventoryButton).html("Show Inventory");
+  $(inventoryButton).html("<p class='copy' hidden>Copy it.</p>")
   $(inventoryButton).css({
     'position': 'fixed',
-    'top': '0px',
+    'top': '30px',
     'right': '0px',
-    'width': '8%',
-    'height': '4%',
-    'background': 'rgba(255,255,255,0.8)',
-    'box-shadow': '0 0 5em black',
-    'z-index': '999999',
+    'width': '5%',
+    'height': '5%',
+    'background': '#4A5063',
+    'color': '#EEE',
+    'text-align': 'center',
+    'font-size': '14px',
+    'font-family': '"Helvetica", "Arial", "sans-serif"',
+    'box-shadow': '1px 2px 5px black',
+    'border-radius':'2px 0 0 2px',
     'cursor': 'pointer',
-    'font-size':'14px',
-    'text-align': 'center'
+    'display': 'none'
   });
   document.body.appendChild(inventoryButton);
+  $(inventoryButton).effect('slide', {'direction': 'right'}, function() {
+    $('.copy').toggle('fade', 'slow');
+  });
   buttonDisplayed = true;
 }
+
+$('#showInventoryButton').hover(function(){
+    $(this).animate({'width': '6%',
+                     'background-color': '#3B404F',
+                     'color': '#FFF',
+                     }, 500);
+  }, function() {
+    $(this).animate({'width': '5%',
+                     'background-color': '#4A5063',
+                     'color': '#EEE',
+                     }, 500);
+});
 
 $(document).on('click', '#showInventoryButton', function() {
   if (buttonDisplayed) {
@@ -50,13 +68,13 @@ var sidebarOpen;
 var sidebarLoaded = false;
 function toggleSidebar() {
   if (sidebarLoaded) {
-    $('#inventorySidebar').toggle('slide', {'direction': 'right'}, 1000);
+    $('#inventorySidebar').toggle('slide', {'direction': 'right'}, 500);
     if (sidebarOpen) {
-      $('body').animate({'width': '100%'}, 1000);
+      $('body').animate({'width': '100%'}, 500);
       sidebarOpen = false;
     }
     else {
-      $('body').animate({'width': '75%'}, 1000);
+      $('body').animate({'width': '75%'}, 500);
       sidebarOpen = true;
     }
     // need to get content source attribute working to refresh iframes in MT
@@ -68,24 +86,21 @@ function toggleSidebar() {
     var sidebar = document.createElement('div');
     sidebar.id = "inventorySidebar";
     $(sidebar).html("\
-      <h1>My Inventory</h1>\
-      <hr />\
-      <div id='close-popup'>x</div>\
-      <table>\
-      <tbody id='inventory'>\
-      </tbody>\
-      </table>\
+      <div class='header'>\
+        <h2 class='streamline-logo'>Streamline <span id='close-popup'>x</span></h2>\
+      </div>\
+      <hr class='divider' />\
+      <h3 class='my-inventory-header'>My Inventory</h3>\
+      <div class='inventory-table-container'>\
+        <table class='inventory-table'>\
+          <tbody id='inventory'>\
+          </tbody>\
+        </table>\
+      </div>\
     ");
     $('body').append(sidebar);
-    $(sidebar).toggle('slide', {'direction': 'right'}, 1000);
-    $('body').animate({'width': '75%'}, 1000);
-    $('#close-popup').css({
-                          'position': 'fixed',
-                          'top': '10px',
-                          'right': '10px',
-                          'font-size': '16px',
-                          'cursor': 'pointer'
-                          });
+    $(sidebar).toggle('slide', {'direction': 'right'}, 500);
+    $('body').animate({'width': '75%'}, 500);
 
     // Loads inventory into sidebar by parsing json from heroku site
     var streamlineAPI = 'https://machine-demo-app.herokuapp.com/machines.json';
@@ -100,32 +115,28 @@ function toggleSidebar() {
           var JSONphone = json.phone;
           var stock_number = value['stock_number']
           $('#inventory').append(
-            "<tr class='machine-preview-row'>" +
-              "<td class='machine-preview-cell' colspan='3'>" +
-                "<strong>Stock " + stock_number + "</strong>" + " " +
-                "<small>" +
+            "<tr class='machine-preview'>" +
+              "<td class='machine-preview-cell' colspan='3' id='" + stock_number + "'>" +
+                "<strong class='stock-number' id='" + stock_number + "'>" + stock_number + "</strong>" + " " +
+                "<small id='" + stock_number + "'>" +
                   value['machine_make'] + " " + value['machine_model'] + " " + value['machine_type'] +
-                "</small>" +
+                "</small>" + " " +
+              "</td>" +
+              "<td>" +
+                "<span class='copy-machine' id='" + stock_number + "'>Copy</span>" +
               "</td>" +
             "</tr>" +
-            "<tr class='machine-preview-description' id='machine_" + stock_number + "'>" +
-              "<td id='" + stock_number + "_hours'>" +
-                "<small>" + "Hours: " + value['hours'] + "</small>" +
-              "</td>" +
-              "<td id='" + stock_number + "_price'>" +
-                "<small>" + "Price: " + value['price'] + "</small>" +
-              "</td>" +
-              "<td id='" + stock_number + "_city'>" +
-                "<small>" + "Loc: " + JSONcity + "</small>" +
-              "</td>" +
-              // hidden values
-              "<td id='stock_number' hidden>" + stock_number + "</td>" +
+            // hidden values
+            "<tr class='machine-preview-stats' id='machine_" + stock_number + "' hidden>" +
               "<td id='" + stock_number + "_make' hidden>" + value['machine_make'] + "</td>" +
               "<td id='" + stock_number + "_model' hidden>" + value['machine_model'] + "</td>" +
               "<td id='" + stock_number + "_type' hidden>" + value['machine_type'] + "</td>" +
               "<td id='" + stock_number + "_year' hidden>" + value['year'] + "</td>" +
               "<td id='" + stock_number + "_serial' hidden>" + value['serial'] + "</td>" +
+              "<td id='" + stock_number + "_hours' hidden>" + value['hours'] + "</td>" +
+              "<td id='" + stock_number + "_price' hidden>" + value['price'] + "</td>" +
               "<td id='" + stock_number + "_address' hidden>" + JSONaddress + "</td>" +
+              "<td id='" + stock_number + "_city' hidden>" + JSONcity + "</td>" +
               "<td id='" + stock_number + "_state' hidden>" + JSONstate + "</td>" +
               "<td id='" + stock_number + "_zip' hidden>" + JSONzip + "</td>" +
               "<td id='" + stock_number + "_phone' hidden>" + JSONphone + "</td>" +
@@ -151,7 +162,7 @@ $(document).on('click', '#close-popup', function() {
 });
 
 $(document).on('click', '.machine-preview-cell', function(btn) {
-  var stock_number = btn.target.id;
+  var stock_number    = btn.target.id;
   var year            = $('#' + stock_number + '_year').html();
   var make            = $('#' + stock_number + '_make').html();
   var model           = $('#' + stock_number + '_model').html();
@@ -174,10 +185,10 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
   // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
     if ($('#EQUIPMENT_stock').val() !== stock_number) {
-      alert("I can't copy stock number" + " " +
+      confirm("Are you sure you want to copy" + " " +
             stock_number + " " +
             "into stock number" + " " +
-            $('#EQUIPMENT_stock').val()
+            $('#EQUIPMENT_stock').val() + "?"
            );
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {

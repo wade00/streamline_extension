@@ -16,7 +16,7 @@
                     "https://*.equipmentalley.com/*",
                     "https://dscrm.sandhills.com/*"],
         "js": ["jquery.js", "jquery-ui.js", "content.js"],
-        "css": ["popup.css"]
+        "css": ["sidebar.css"]
     }],
 
     "page_action": {
