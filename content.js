@@ -33,7 +33,7 @@ function loadButton() {
     'top': '30px',
     'right': '0px',
     'width': '100px',
-    'height': '50px',
+    'height': '40px',
     'background': '#4A5063',
     'color': '#EEE',
     'text-align': 'center',
@@ -44,17 +44,11 @@ function loadButton() {
     'cursor': 'pointer',
     'display': 'none'
   });
-
-  // THIS IS WHAT I NEED TO MOVE INTO IF STATEMENT
   document.body.appendChild(inventoryButton);
-  $(inventoryButton).effect('slide', {'direction': 'right'}, function() {
-    $('.copy').toggle('fade', 'slow');
-  });
-
   buttonDisplayed = false;
 }
 
-// Hover states for button
+// Hover state for button
 $('#showInventoryButton').hover(function(){
     $(this).animate({'width': '125px',
                      'background-color': '#3B404F',
@@ -69,12 +63,13 @@ $('#showInventoryButton').hover(function(){
 
 // Load sidebar function
 var sidebarOpen;
+var stockNumberArray = [];
 function loadSidebar() {
   var sidebar = document.createElement('div');
   sidebar.id = "inventorySidebar";
   $(sidebar).html("\
     <div class='header'>\
-      <h2 class='streamline-logo'>Streamline <span id='close-popup'>x</span></h2>\
+      <h2 class='streamline-logo'>Streamline<span id='close-popup'>x</span></h2>\
     </div>\
     <hr class='divider' />\
     <h3 class='my-inventory-header'>My Inventory</h3>\
@@ -89,17 +84,18 @@ function loadSidebar() {
 
   // Loads inventory into sidebar by parsing json from heroku site
   var streamlineAPI = 'https://machine-demo-app.herokuapp.com/machines.json';
-  $.getJSON(streamlineAPI, function(data) {
+  var streamlineDataCall = $.getJSON(streamlineAPI, function(data) {
     $(data).each(function(index, value) {
+      // Make call to locations api to get detailed data about address, city, etc
       var locationAPI = 'https://machine-demo-app.herokuapp.com/locations/' + value['location'] + '.json';
+      var stock_number  = value['stock_number'];
       $.getJSON(locationAPI, function(json) {
-        var JSONaddress = json.address;
-        var JSONcity = json.city;
-        var JSONstate = json.state;
-        var JSONzip = json.zip;
-        var JSONphone = json.phone;
+        var JSONaddress   = json.address;
+        var JSONcity      = json.city;
+        var JSONstate     = json.state;
+        var JSONzip       = json.zip;
+        var JSONphone     = json.phone;
         var JSONeaAccount = json.equipment_alley_account;
-        var stock_number = value['stock_number'];
         $('#inventory').append(
           "<tr class='machine-preview'>" +
             "<td class='machine-preview-cell' colspan='3' id='" + stock_number + "'>" +
@@ -131,17 +127,66 @@ function loadSidebar() {
           "</tr>"
         );
       });
+      stockNumberArray.push(stock_number);
     });
   });
-  sidebarLoaded = true;
   sidebarOpen = false;
+
+  // Defers filling value of stockNumberArray until all JSON calls are done
+  var checkArray = streamlineDataCall.then(
+    function (data) {
+      var defer = new $.Deferred();
+
+      setTimeout(function () {
+          console.log('Request completed');
+          defer.resolve();
+      },2000);
+
+      return defer.promise();
+    },
+    function (err) {
+      console.log('Step1 failed: Ajax request');
+    }
+  );
+
+  // Iterates through stockNumberArray and checks to see if it's present on page, if so displays button
+  streamlineDataCall.done(function() {
+    $(stockNumberArray).each(function(index, value) {
+      sidebarStockNumber = value;
+      if (elsREGEX.test(siteURL)) {
+        pageStockNumber = $('#EQUIPMENT_stock').val();
+      }
+      // EA isn't working because editing a st# doesn't trigger a whole page load,
+      // just a div with id mainContainer is refreshing
+      if (eaREGEX.test(siteURL)) {
+        pageStockNumber = $('#STOCK').val();
+      }
+      if (mtREGEX.test(siteURL)) {
+        $iFrameContents = $('#contentIFrame').contents();
+        mtStockNumber = $iFrameContents.find('#sads_stocknumber');
+        pageStockNumber = mtStockNumber.val();
+      }
+      if (pageStockNumber === sidebarStockNumber) {
+        $('#showInventoryButton').effect('slide', {'direction': 'right'}, function() {
+          $('.copy').toggle('fade', 'slow');
+        });
+      }
+    });
+    buttonDisplayed = true;
+  });
 }
+
+// This should trigger the loadSidebar action again after the st# loads
+// But for some reason the page isn't registering the click event
+$(document).on('click', '.cust_button1', function() {
+  // loadSidebar();
+  alert('here');
+});
 
 // Click button to toggle sidebar and remove button
 $(document).on('click', '#showInventoryButton', function() {
   if (buttonDisplayed) {
-    var inventoryButton = document.getElementById('showInventoryButton');
-    inventoryButton.parentNode.removeChild(inventoryButton);
+    $('#showInventoryButton').hide();
     buttonDisplayed = false;
   }
   toggleSidebar();
@@ -168,20 +213,6 @@ function toggleSidebar() {
 $(document).on('click', '#close-popup', function() {
   toggleSidebar();
 });
-
-function stockNumberCheck() {
-  var stockNumberArray = $('.stock-number').val();
-  console.log(stockNumberArray);
-
-  // if (elsREGEX.test(siteURL)) {
-  // }
-
-  // if (eaREGEX.test(siteURL)) {
-  // }
-
-  // if (mtREGEX.test(siteURL)) {
-  // }
-}
 
 // Auto fills when table row is clicked in sidebar
 $(document).on('click', '.machine-preview-cell', function(btn) {
