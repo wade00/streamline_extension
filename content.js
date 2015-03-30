@@ -63,8 +63,14 @@ $('#showInventoryButton').hover(function(){
 
 // Load sidebar function
 var sidebarOpen;
+var sidebarLoaded;
 var stockNumberArray = [];
 function loadSidebar() {
+  if (sidebarLoaded) {
+    $('#inventorySidebar').remove();
+    sidebarLoaded = false;
+  }
+
   var sidebar = document.createElement('div');
   sidebar.id = "inventorySidebar";
   $(sidebar).html("\
@@ -131,6 +137,7 @@ function loadSidebar() {
     });
   });
   sidebarOpen = false;
+  sidebarLoaded = true;
 
   // Defers filling value of stockNumberArray until all JSON calls are done
   var checkArray = streamlineDataCall.then(
@@ -159,6 +166,7 @@ function loadSidebar() {
       // EA isn't working because editing a st# doesn't trigger a whole page load,
       // just a div with id mainContainer is refreshing
       if (eaREGEX.test(siteURL)) {
+        console.log($('#STOCK').val());
         pageStockNumber = $('#STOCK').val();
       }
       if (mtREGEX.test(siteURL)) {
@@ -167,32 +175,43 @@ function loadSidebar() {
         pageStockNumber = mtStockNumber.val();
       }
       if (pageStockNumber === sidebarStockNumber) {
-        $('#showInventoryButton').effect('slide', {'direction': 'right'}, function() {
-          $('.copy').toggle('fade', 'slow');
+        $('#showInventoryButton').show('slide', {'direction': 'right'}, function() {
+          $('.copy').show('fade', 'slow');
+          buttonDisplayed = true;
         });
       }
     });
-    buttonDisplayed = true;
   });
 }
 
-// This should trigger the loadSidebar action again after the st# loads
-// But for some reason the page isn't registering the click event
-$(document).on('click', '.cust_button1', function() {
-  // loadSidebar();
-  alert('here');
-});
+// Clears stock number array and runs loadSidebar (for EA since page doesn't reload)
+function resetSidebar() {
+  stockNumberArray.length = 0;
+  loadSidebar();
+}
+
+// Hides button when certain buttons clicked since EA page doesn't reload in between stock numbers
+function hideButton() {
+  $('#showInventoryButton').hide('fade', 'fast');
+  $('.copy').hide('fade', 'fast');
+  buttonDisplayed = false;
+}
+
+// Loads sidebar and checks stock numbers when clicking into a machine on EA
+$(document).on('click', '#offertab1', resetSidebar);
+
+// Hides inventory button when clicking 'go' or 'active equipment' buttons on EA
+$(document).on('click', '#g1', hideButton);
+$(document).on('click', '#tm_sell', hideButton);
 
 // Click button to toggle sidebar and remove button
 $(document).on('click', '#showInventoryButton', function() {
-  if (buttonDisplayed) {
-    $('#showInventoryButton').hide();
-    buttonDisplayed = false;
-  }
   toggleSidebar();
+  $('#showInventoryButton').hide();
+  buttonDisplayed = false;
 });
 
-// Inject sidebar into page
+// Toggle sidebar display
 function toggleSidebar() {
   $('#inventorySidebar').toggle('slide', {'direction': 'right'}, 500);
   if (sidebarOpen) {
@@ -212,7 +231,13 @@ function toggleSidebar() {
 // Click 'x' to close sidebar
 $(document).on('click', '#close-popup', function() {
   toggleSidebar();
+  $('#showInventoryButton').show();
+  buttonDisplayed = true;
 });
+
+// function highlightBackground() {
+//   this.css({'background-color': '#FFFF99'});
+// }
 
 // Auto fills when table row is clicked in sidebar
 $(document).on('click', '.machine-preview-cell', function(btn) {
@@ -241,43 +266,43 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {
       if ($('#EQUIPMENT_control').val() !== phone) {
-        $('#EQUIPMENT_control').val(phone).effect('highlight', 'slow');
+        $('#EQUIPMENT_control').val(phone).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_year').val() !== year) {
-        $('#EQUIPMENT_year').val(year).effect('highlight', 'slow');
+        $('#EQUIPMENT_year').val(year).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_make').val() !== make) {
-        $('#EQUIPMENT_make').val(make).effect('highlight', 'slow');
+        $('#EQUIPMENT_make').val(make).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_model').val() !== model) {
-        $('#EQUIPMENT_model').val(model).effect('highlight', 'slow');
+        $('#EQUIPMENT_model').val(model).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_serial').val() !== serial) {
-        $('#EQUIPMENT_serial').val(serial).effect('highlight', 'slow');
+        $('#EQUIPMENT_serial').val(serial).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_hrs').val() !== hours) {
-        $('#EQUIPMENT_hrs').val(hours).effect('highlight', 'slow');
+        $('#EQUIPMENT_hrs').val(hours).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_price').val() !== price) {
-        $('#EQUIPMENT_price').val(price).effect('highlight', 'slow');
+        $('#EQUIPMENT_price').val(price).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_ecity').val() !== city) {
-        $('#EQUIPMENT_ecity').val(city).effect('highlight', 'slow');
+        $('#EQUIPMENT_ecity').val(city).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIPMENT_estate').val() !== state) {
-        $('#EQUIPMENT_estate').val(state).effect('highlight', 'slow');
+        $('#EQUIPMENT_estate').val(state).css({'background-color': '#FFFF99'});;
       }
 
       if ($('#EQUIP_NOTE_note').val() !== description) {
-        $('#EQUIP_NOTE_note').val(description).effect('highlight', 'slow');
+        $('#EQUIP_NOTE_note').val(description).css({'background-color': '#FFFF99'});;
       }
     }
   }
@@ -301,34 +326,34 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       }
 
       // if ($('#MODEL').val() !== model) {
-      //   $('#MODEL').val(model).effect('highlight', 'slow');
+      //   $('#MODEL').val(model).css({'background-color': '#FFFF99'});;
       // }
 
       // if ($('#YEAR').val() !== year) {
-      //   $('#YEAR').val(year).effect('highlight', 'slow');
+      //   $('#YEAR').val(year).css({'background-color': '#FFFF99'});;
       // }
 
       // if ($('#SERIAL').val() !== serial) {
-      //   $('#SERIAL').val(serial).effect('highlight', 'slow');
+      //   $('#SERIAL').val(serial).css({'background-color': '#FFFF99'});;
       // }
 
       // if ($('#HOURS').val() !== hours) {
-      //   $('#HOURS').val(hours).effect('highlight', 'slow');
+      //   $('#HOURS').val(hours).css({'background-color': '#FFFF99'});;
       // }
 
       if ($('#_Location').val() !== eaAccount) {
-        $('#_Location').val(eaAccount).effect('highlight', 'slow');
+        $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});;
         var locationSelect = $(document).find('#_Location');
         locationSelect.change();
       }
 
       // if ($('#_RETAIL_PRICE').val() !== price) {
-      //   $('#_RETAIL_PRICE').val(price).effect('highlight', 'slow');
+      //   $('#_RETAIL_PRICE').val(price).css({'background-color': '#FFFF99'});;
       //   $('#_RETAIL_PRICE').change();
       // }
 
       // if ($('[name="DESCRIPTION"]').val() !== description) {
-      //   $('[name="DESCRIPTION"]').val(description).effect('highlight', 'slow');
+      //   $('[name="DESCRIPTION"]').val(description).css({'background-color': '#FFFF99'});;
       // }
     }
   }
@@ -359,11 +384,11 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     }
     else if (mtStockNumber.val() === stock_number) {
       // Fills forms
-      $(mtYear).val(parseInt(year) - 1899).effect('highlight', 'slow'); // option select
-      $(mtMake).val(make.toUpperCase()).effect('highlight', 'slow');
-      $(mtModel).val(model).effect('highlight', 'slow');
-      $(mtSerial).val(serial).effect('highlight', 'slow');
-      $(mtHours).val(hours).effect('highlight', 'slow');
+      $(mtYear).val(parseInt(year) - 1899).css({'background-color': '#FFFF99'});; // option select
+      $(mtMake).val(make.toUpperCase()).css({'background-color': '#FFFF99'});;
+      $(mtModel).val(model).css({'background-color': '#FFFF99'});;
+      $(mtSerial).val(serial).css({'background-color': '#FFFF99'});;
+      $(mtHours).val(hours).css({'background-color': '#FFFF99'});;
     }
   }
 });
