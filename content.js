@@ -4,14 +4,6 @@ chrome.runtime.sendMessage({
   subject: 'showPageAction'
 });
 
-// Listens for sidebar message from background script
-function handleMessage(msg, sender, sendResponse) {
-  if (msg.callFunction == "toggleSidebar") {
-    toggleSidebar();
-  }
-}
-chrome.runtime.onMessage.addListener(handleMessage);
-
 // Sets regexs for sites and stores tab url in variable
 var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
 var eaREGEX  = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
@@ -21,6 +13,26 @@ var siteURL  = document.URL;
 // Load show inventory button and sidebar into page DOM
 window.onload = loadButton();
 window.onload = loadSidebar();
+if (mtREGEX.test(siteURL)) {
+  function displayTables() {
+    var iFrame = document.getElementById('contentIFrame');
+    var y = iFrame.contentDocument;
+    if (y.document)y = y.document;
+    var tables = y.getElementsByClassName('ms-crm-InlineTabBody');
+    for (var i = 0; i < tables.length; i++) {
+      tables[i].style.display = 'block';
+    }
+  }
+
+  function loadDisplayTableScript() {
+    var script = document.createElement('script');
+    script.appendChild(document.createTextNode(displayTables));
+    (document.body || document.head || document.documentElement).appendChild(script);
+  }
+
+  window.onload = loadDisplayTableScript();
+
+}
 
 // Load button function
 var buttonDisplayed;
@@ -145,8 +157,8 @@ function loadSidebar() {
       var defer = new $.Deferred();
 
       setTimeout(function () {
-          console.log('Request completed');
-          defer.resolve();
+        console.log('Request completed');
+        defer.resolve();
       },2000);
 
       return defer.promise();
@@ -162,23 +174,28 @@ function loadSidebar() {
       sidebarStockNumber = value;
       if (elsREGEX.test(siteURL)) {
         pageStockNumber = $('#EQUIPMENT_stock').val();
+        compareStockNumber();
       }
-      // EA isn't working because editing a st# doesn't trigger a whole page load,
-      // just a div with id mainContainer is refreshing
       if (eaREGEX.test(siteURL)) {
-        console.log($('#STOCK').val());
         pageStockNumber = $('#STOCK').val();
+        compareStockNumber();
       }
       if (mtREGEX.test(siteURL)) {
-        $iFrameContents = $('#contentIFrame').contents();
-        mtStockNumber = $iFrameContents.find('#sads_stocknumber');
-        pageStockNumber = mtStockNumber.val();
+        setTimeout(function() {
+          $iFrameContents = $('#contentIFrame').contents();
+          mtStockNumber   = $iFrameContents.find('#sads_stocknumber');
+          pageStockNumber = mtStockNumber.val();
+          compareStockNumber();
+        }, 2000);
       }
-      if (pageStockNumber === sidebarStockNumber) {
-        $('#showInventoryButton').show('slide', {'direction': 'right'}, function() {
-          $('.copy').show('fade', 'slow');
-          buttonDisplayed = true;
-        });
+
+      function compareStockNumber() {
+        if (pageStockNumber === sidebarStockNumber) {
+          $('#showInventoryButton').show('slide', {'direction': 'right'}, function() {
+            $('.copy').show('fade', 'slow');
+            buttonDisplayed = true;
+          });
+        }
       }
     });
   });
@@ -195,10 +212,14 @@ function hideButton() {
   $('#showInventoryButton').hide('fade', 'fast');
   $('.copy').hide('fade', 'fast');
   buttonDisplayed = false;
+  (document.body || document.head || document.documentElement).removeChild(script);
 }
 
 // Loads sidebar and checks stock numbers when clicking into a machine on EA
 $(document).on('click', '#offertab1', resetSidebar);
+$(document).on('click', '#offertab3', resetSidebar);
+$(document).on('click', '#offertab4', resetSidebar);
+$(document).on('click', '#offertab5', resetSidebar);
 
 // Hides inventory button when clicking 'go' or 'active equipment' buttons on EA
 $(document).on('click', '#g1', hideButton);
@@ -235,6 +256,7 @@ $(document).on('click', '#close-popup', function() {
   buttonDisplayed = true;
 });
 
+// Create function to change background color to DRY up code below
 // function highlightBackground() {
 //   this.css({'background-color': '#FFFF99'});
 // }
@@ -266,43 +288,43 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {
       if ($('#EQUIPMENT_control').val() !== phone) {
-        $('#EQUIPMENT_control').val(phone).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_control').val(phone).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_year').val() !== year) {
-        $('#EQUIPMENT_year').val(year).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_year').val(year).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_make').val() !== make) {
-        $('#EQUIPMENT_make').val(make).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_make').val(make).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_model').val() !== model) {
-        $('#EQUIPMENT_model').val(model).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_model').val(model).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_serial').val() !== serial) {
-        $('#EQUIPMENT_serial').val(serial).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_serial').val(serial).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_hrs').val() !== hours) {
-        $('#EQUIPMENT_hrs').val(hours).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_hrs').val(hours).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_price').val() !== price) {
-        $('#EQUIPMENT_price').val(price).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_price').val(price).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_ecity').val() !== city) {
-        $('#EQUIPMENT_ecity').val(city).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_ecity').val(city).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIPMENT_estate').val() !== state) {
-        $('#EQUIPMENT_estate').val(state).css({'background-color': '#FFFF99'});;
+        $('#EQUIPMENT_estate').val(state).css({'background-color': '#FFFF99'});
       }
 
       if ($('#EQUIP_NOTE_note').val() !== description) {
-        $('#EQUIP_NOTE_note').val(description).css({'background-color': '#FFFF99'});;
+        $('#EQUIP_NOTE_note').val(description).css({'background-color': '#FFFF99'});
       }
     }
   }
@@ -325,36 +347,45 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
         alert("You haven't chosen a manufacturer. Please select something first.");
       }
 
-      // if ($('#MODEL').val() !== model) {
-      //   $('#MODEL').val(model).css({'background-color': '#FFFF99'});;
-      // }
-
-      // if ($('#YEAR').val() !== year) {
-      //   $('#YEAR').val(year).css({'background-color': '#FFFF99'});;
-      // }
-
-      // if ($('#SERIAL').val() !== serial) {
-      //   $('#SERIAL').val(serial).css({'background-color': '#FFFF99'});;
-      // }
-
-      // if ($('#HOURS').val() !== hours) {
-      //   $('#HOURS').val(hours).css({'background-color': '#FFFF99'});;
-      // }
-
-      if ($('#_Location').val() !== eaAccount) {
-        $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});;
-        var locationSelect = $(document).find('#_Location');
-        locationSelect.change();
+      if ($('#MODEL').val() !== model) {
+        $('#MODEL').val(model).css({'background-color': '#FFFF99'});
       }
 
-      // if ($('#_RETAIL_PRICE').val() !== price) {
-      //   $('#_RETAIL_PRICE').val(price).css({'background-color': '#FFFF99'});;
-      //   $('#_RETAIL_PRICE').change();
-      // }
+      if ($('#YEAR').val() !== year) {
+        $('#YEAR').val(year).css({'background-color': '#FFFF99'});
+      }
 
-      // if ($('[name="DESCRIPTION"]').val() !== description) {
-      //   $('[name="DESCRIPTION"]').val(description).css({'background-color': '#FFFF99'});;
-      // }
+      if ($('#SERIAL').val() !== serial) {
+        $('#SERIAL').val(serial).css({'background-color': '#FFFF99'});
+      }
+
+      if ($('#HOURS').val() !== hours) {
+        $('#HOURS').val(hours).css({'background-color': '#FFFF99'});
+      }
+
+      if ($('#_Location').val() !== eaAccount) {
+        // $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
+        // var locationSelect = $(document).find('#_Location');
+        // locationSelect.change();
+        function changeLocation() {
+          $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
+          var locationSelect = $(document).find('#_Location');
+          locationSelect.change();
+        }
+
+        var script = document.createElement('script');
+        script.appendChild(document.createTextNode('('+ changeLocation +')();'));
+        (document.body || document.head || document.documentElement).appendChild(script);
+      }
+
+      if ($('#_RETAIL_PRICE').val() !== price) {
+        $('#_RETAIL_PRICE').val(price).css({'background-color': '#FFFF99'});
+        $('#_RETAIL_PRICE').change();
+      }
+
+      if ($('[name="DESCRIPTION"]').val() !== description) {
+        $('[name="DESCRIPTION"]').val(description).css({'background-color': '#FFFF99'});
+      }
     }
   }
 
@@ -366,12 +397,12 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     var $iframeSpecsContents = $contentIFrameContents.find('#IFRAME_Specs').contents();
 
     var mtStockNumber = $contentIFrameContents.find('#sads_stocknumber');
-    var mtYear = $contentIFrameContents.find('#sads_year');
-    var mtMake = $iframeCatMakeModelContents.find('#crm_txtTypedManufacturer'); // text field - select if necessary
-    var mtModel = $iframeCatMakeModelContents.find('#crm_txtTypedModel'); // text field - use select if necessary
-    var mtType = $iframeCatMakeModelContents.find('#crm_ddlCategory'); // select - need to log values
+    var mtYear   = $contentIFrameContents.find('#sads_year');
+    var mtMake   = $iframeCatMakeModelContents.find('#crm_txtTypedManufacturer'); // text field - select if nec
+    var mtModel  = $iframeCatMakeModelContents.find('#crm_txtTypedModel'); // text field - use select if nec
+    var mtType   = $iframeCatMakeModelContents.find('#crm_ddlCategory'); // select - need to log values
     var mtSerial = $contentIFrameContents.find('#sads_serialnumber');
-    var mtHours = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
+    var mtHours  = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
 
     // need to figure out price and location (table not currently displayed)
 
@@ -383,12 +414,13 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       );
     }
     else if (mtStockNumber.val() === stock_number) {
+      displayTables();
       // Fills forms
-      $(mtYear).val(parseInt(year) - 1899).css({'background-color': '#FFFF99'});; // option select
-      $(mtMake).val(make.toUpperCase()).css({'background-color': '#FFFF99'});;
-      $(mtModel).val(model).css({'background-color': '#FFFF99'});;
-      $(mtSerial).val(serial).css({'background-color': '#FFFF99'});;
-      $(mtHours).val(hours).css({'background-color': '#FFFF99'});;
+      // $(mtYear).val(parseInt(year) - 1899).css({'background-color': '#FFFF99'}); // option select
+      // $(mtMake).val(make.toUpperCase()).css({'background-color': '#FFFF99'});
+      // $(mtModel).val(model).css({'background-color': '#FFFF99'});
+      // $(mtSerial).val(serial).css({'background-color': '#FFFF99'});
+      // $(mtHours).val(hours).css({'background-color': '#FFFF99'});
     }
   }
 });
