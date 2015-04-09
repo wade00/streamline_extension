@@ -264,9 +264,9 @@ $(document).on('click', '#close-popup', function() {
 });
 
 // Create function to change background color to DRY up code below
-// function highlightBackground() {
-//   this.css({'background-color': '#FFFF99'});
-// }
+function highlightBackground(field) {
+  field.css({'background-color': '#C2E0FF'});
+}
 
 // Auto fills when table row is clicked in sidebar
 $(document).on('click', '.machine-preview-cell', function(btn) {
@@ -295,43 +295,43 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     }
     else if ($('#EQUIPMENT_stock').val() === stock_number) {
       if ($('#EQUIPMENT_control').val() !== phone) {
-        $('#EQUIPMENT_control').val(phone).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_control').val(phone));
       }
 
       if ($('#EQUIPMENT_year').val() !== year) {
-        $('#EQUIPMENT_year').val(year).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_year').val(year));
       }
 
       if ($('#EQUIPMENT_make').val() !== make) {
-        $('#EQUIPMENT_make').val(make).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_make').val(make));
       }
 
       if ($('#EQUIPMENT_model').val() !== model) {
-        $('#EQUIPMENT_model').val(model).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_model').val(model));
       }
 
       if ($('#EQUIPMENT_serial').val() !== serial) {
-        $('#EQUIPMENT_serial').val(serial).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_serial').val(serial));
       }
 
       if ($('#EQUIPMENT_hrs').val() !== hours) {
-        $('#EQUIPMENT_hrs').val(hours).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_hrs').val(hours));
       }
 
       if ($('#EQUIPMENT_price').val() !== price) {
-        $('#EQUIPMENT_price').val(price).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_price').val(price));
       }
 
       if ($('#EQUIPMENT_ecity').val() !== city) {
-        $('#EQUIPMENT_ecity').val(city).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_ecity').val(city));
       }
 
       if ($('#EQUIPMENT_estate').val() !== state) {
-        $('#EQUIPMENT_estate').val(state).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIPMENT_estate').val(state));
       }
 
       if ($('#EQUIP_NOTE_note').val() !== description) {
-        $('#EQUIP_NOTE_note').val(description).css({'background-color': '#FFFF99'});
+        highlightBackground($('#EQUIP_NOTE_note').val(description));
       }
     }
   }
@@ -355,27 +355,27 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       }
 
       if ($('#MODEL').val() !== model) {
-        $('#MODEL').val(model).css({'background-color': '#FFFF99'});
+        highlightBackground($('#MODEL').val(model));
       }
 
       if ($('#YEAR').val() !== year) {
-        $('#YEAR').val(year).css({'background-color': '#FFFF99'});
+        highlightBackground($('#YEAR').val(year));
       }
 
       if ($('#SERIAL').val() !== serial) {
-        $('#SERIAL').val(serial).css({'background-color': '#FFFF99'});
+        highlightBackground($('#SERIAL').val(serial));
       }
 
       if ($('#HOURS').val() !== hours) {
-        $('#HOURS').val(hours).css({'background-color': '#FFFF99'});
+        highlightBackground($('#HOURS').val(hours));
       }
 
       if ($('#_Location').val() !== eaAccount) {
-        // $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
+        // highlightBackground($('#_Location').val(eaAccount));
         // var locationSelect = $(document).find('#_Location');
         // locationSelect.change();
         // function changeLocation() {
-        //   $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
+        //   highlightBackground($('#_Location').val(eaAccount));
         //   var locationSelect = $(document).find('#_Location');
         //   locationSelect.change();
         // }
@@ -386,12 +386,12 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       }
 
       if ($('#_RETAIL_PRICE').val() !== price) {
-        $('#_RETAIL_PRICE').val(price).css({'background-color': '#FFFF99'});
+        highlightBackground($('#_RETAIL_PRICE').val(price));
         $('#_RETAIL_PRICE').change();
       }
 
       if ($('[name="DESCRIPTION"]').val() !== description) {
-        $('[name="DESCRIPTION"]').val(description).css({'background-color': '#FFFF99'});
+        highlightBackground($('[name="DESCRIPTION"]').val(description));
       }
     }
   }
@@ -427,11 +427,11 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       if ($(mtType).val() === "") {
         alert("You haven't chosen a category. Please select something first.");
       }
-      // $(mtYear).val(parseInt(year) - 1899).css({'background-color': '#FFFF99'}); // option select
-      // $(mtMake).val(make.toUpperCase()).css({'background-color': '#FFFF99'});
-      // $(mtModel).val(model).css({'background-color': '#FFFF99'});
-      // $(mtSerial).val(serial).css({'background-color': '#FFFF99'});
-      // $(mtHours).val(hours).css({'background-color': '#FFFF99'});
+      // highlightBackground($(mtYear).val(parseInt(year) - 1899)); // option select
+      // highlightBackground($(mtMake).val(make.toUpperCase()));
+      // highlightBackground($(mtModel).val(model));
+      // highlightBackground($(mtSerial).val(serial));
+      // highlightBackground($(mtHours).val(hours));
       confirm("You need to change the address if this machine's location has changed.");
     }
   }
