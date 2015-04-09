@@ -14,24 +14,28 @@ var siteURL  = document.URL;
 window.onload = loadButton();
 window.onload = loadSidebar();
 if (mtREGEX.test(siteURL)) {
-  function displayTables() {
-    var iFrame = document.getElementById('contentIFrame');
-    var y = iFrame.contentDocument;
-    if (y.document)y = y.document;
-    var tables = y.getElementsByClassName('ms-crm-InlineTabBody');
-    for (var i = 0; i < tables.length; i++) {
-      tables[i].style.display = 'block';
-    }
-  }
-
+  var tableScriptLoaded;
   function loadDisplayTableScript() {
+    if (tableScriptLoaded) {
+      (document.body || document.head || document.documentElement).removeChild(script);
+      tableScriptLoaded = false;
+    }
+
     var script = document.createElement('script');
     script.appendChild(document.createTextNode(displayTables));
     (document.body || document.head || document.documentElement).appendChild(script);
+    tableScriptLoaded = true;
   }
-
   window.onload = loadDisplayTableScript();
+}
 
+function displayTables() {
+  var iFrame = document.getElementById('contentIFrame');
+  var frameContents = iFrame.contentDocument;
+  var tables = frameContents.getElementsByClassName('ms-crm-InlineTabBody');
+  for (var i = 0; i < tables.length; i++) {
+    tables[i].style.display = 'block';
+  }
 }
 
 // Load button function
@@ -212,7 +216,6 @@ function hideButton() {
   $('#showInventoryButton').hide('fade', 'fast');
   $('.copy').hide('fade', 'fast');
   buttonDisplayed = false;
-  (document.body || document.head || document.documentElement).removeChild(script);
 }
 
 // Loads sidebar and checks stock numbers when clicking into a machine on EA
@@ -236,17 +239,21 @@ $(document).on('click', '#showInventoryButton', function() {
 function toggleSidebar() {
   $('#inventorySidebar').toggle('slide', {'direction': 'right'}, 500);
   if (sidebarOpen) {
+    if (mtREGEX.test(siteURL)) {
+      $('#contentIFrame').animate({'width': '100%'}, 500);
+    } else {
     $('body').animate({'width': '100%'}, 500);
+    }
     sidebarOpen = false;
   }
   else {
-    $('body').animate({'width': '75%'}, 500);
+    if (mtREGEX.test(siteURL)) {
+      $('#contentIFrame').animate({'width': '75%'}, 500);
+    } else {
+      $('body').animate({'width': '75%'}, 500);
+    }
     sidebarOpen = true;
   }
-  // need to get content source attribute working to refresh iframes in MT
-  // $('#contentIFrame').attr('contentsrc', function (i, val) {
-  //   return val;
-  // });
 }
 
 // Click 'x' to close sidebar
@@ -263,19 +270,19 @@ $(document).on('click', '#close-popup', function() {
 
 // Auto fills when table row is clicked in sidebar
 $(document).on('click', '.machine-preview-cell', function(btn) {
-  var stock_number    = btn.target.id;
-  var year            = $('#' + stock_number + '_year').html();
-  var make            = $('#' + stock_number + '_make').html();
-  var model           = $('#' + stock_number + '_model').html();
-  var type            = $('#' + stock_number + '_type').html();
-  var serial          = $('#' + stock_number + '_serial').html();
-  var hours           = $('#' + stock_number + '_hours').html();
-  var price           = $('#' + stock_number + '_price').html();
-  var city            = $('#' + stock_number + '_city').html();
-  var state           = $('#' + stock_number + '_state').html();
-  var phone           = $('#' + stock_number + '_phone').html();
-  var eaAccount       = $('#' + stock_number + '_eaAccount').html();
-  var description     = $('#' + stock_number + '_description').html();
+  var stock_number = btn.target.id;
+  var year         = $('#' + stock_number + '_year').html();
+  var make         = $('#' + stock_number + '_make').html();
+  var model        = $('#' + stock_number + '_model').html();
+  var type         = $('#' + stock_number + '_type').html();
+  var serial       = $('#' + stock_number + '_serial').html();
+  var hours        = $('#' + stock_number + '_hours').html();
+  var price        = $('#' + stock_number + '_price').html();
+  var city         = $('#' + stock_number + '_city').html();
+  var state        = $('#' + stock_number + '_state').html();
+  var phone        = $('#' + stock_number + '_phone').html();
+  var eaAccount    = $('#' + stock_number + '_eaAccount').html();
+  var description  = $('#' + stock_number + '_description').html();
 
   // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
@@ -367,15 +374,15 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
         // $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
         // var locationSelect = $(document).find('#_Location');
         // locationSelect.change();
-        function changeLocation() {
-          $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
-          var locationSelect = $(document).find('#_Location');
-          locationSelect.change();
-        }
+        // function changeLocation() {
+        //   $('#_Location').val(eaAccount).css({'background-color': '#FFFF99'});
+        //   var locationSelect = $(document).find('#_Location');
+        //   locationSelect.change();
+        // }
 
-        var script = document.createElement('script');
-        script.appendChild(document.createTextNode('('+ changeLocation +')();'));
-        (document.body || document.head || document.documentElement).appendChild(script);
+        // var script = document.createElement('script');
+        // script.appendChild(document.createTextNode('('+ changeLocation +')();'));
+        // (document.body || document.head || document.documentElement).appendChild(script);
       }
 
       if ($('#_RETAIL_PRICE').val() !== price) {
@@ -391,6 +398,7 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
 
   // Machinery Trader DSCRM autofill
   if (mtREGEX.test(siteURL)) {
+
     // Find iframes on page
     var $contentIFrameContents = $('#contentIFrame').contents();
     var $iframeCatMakeModelContents = $contentIFrameContents.find('#IFRAME_CatMakeModel').contents();
@@ -416,11 +424,15 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     else if (mtStockNumber.val() === stock_number) {
       displayTables();
       // Fills forms
+      if ($(mtType).val() === "") {
+        alert("You haven't chosen a category. Please select something first.");
+      }
       // $(mtYear).val(parseInt(year) - 1899).css({'background-color': '#FFFF99'}); // option select
       // $(mtMake).val(make.toUpperCase()).css({'background-color': '#FFFF99'});
       // $(mtModel).val(model).css({'background-color': '#FFFF99'});
       // $(mtSerial).val(serial).css({'background-color': '#FFFF99'});
       // $(mtHours).val(hours).css({'background-color': '#FFFF99'});
+      confirm("You need to change the address if this machine's location has changed.");
     }
   }
 });
