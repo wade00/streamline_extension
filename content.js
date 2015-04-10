@@ -406,13 +406,13 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
 
     var mtStockNumber = $contentIFrameContents.find('#sads_stocknumber');
     var mtYear   = $contentIFrameContents.find('#sads_year');
-    var mtMake   = $iframeCatMakeModelContents.find('#crm_txtTypedManufacturer'); // text field - select if nec
-    var mtModel  = $iframeCatMakeModelContents.find('#crm_txtTypedModel'); // text field - use select if nec
+    var mtMake   = $iframeCatMakeModelContents.find('#crm_ddlManufacturer'); // text field - select if nec
+    var mtModel  = $iframeCatMakeModelContents.find('#crm_ddlModel'); // text field - use select if nec
     var mtType   = $iframeCatMakeModelContents.find('#crm_ddlCategory'); // select - need to log values
     var mtSerial = $contentIFrameContents.find('#sads_serialnumber');
     var mtHours  = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
-
-    // need to figure out price and location (table not currently displayed)
+    var mtPrice  = $contentIFrameContents.find('#sads_price');
+    var mtDesc   = $contentIFrameContents.find('#sads_description');
 
     if (mtStockNumber.val() !== stock_number) {
       confirm("Are you sure you want to copy" + " " +
@@ -423,15 +423,41 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     }
     else if (mtStockNumber.val() === stock_number) {
       displayTables();
-      // Fills forms
+
       if ($(mtType).val() === "") {
         alert("You haven't chosen a category. Please select something first.");
       }
-      // highlightBackground($(mtYear).val(parseInt(year) - 1899)); // option select
-      // highlightBackground($(mtMake).val(make.toUpperCase()));
-      // highlightBackground($(mtModel).val(model));
-      // highlightBackground($(mtSerial).val(serial));
-      // highlightBackground($(mtHours).val(hours));
+
+      if ($(mtYear).val() !== parseInt(year) - 1899) {
+        highlightBackground($(mtYear).val(parseInt(year) - 1899)); // option select
+      }
+
+      if ($(mtMake).val() !== make.toUpperCase()) {
+        highlightBackground($(mtMake).val(make.toUpperCase()));
+      }
+
+      if ($(mtModel).val() !== model) {
+        highlightBackground($(mtModel).val(model));
+      }
+
+      if ($(mtSerial).val() !== serial) {
+        confirm('Are you sure you want to change the serial number?');
+        highlightBackground($(mtSerial).val(serial));
+      }
+
+      if ($(mtHours).val() !== hours) {
+        highlightBackground($(mtHours).val(hours));
+      }
+
+      if ($(mtPrice).val() !== price) {
+        highlightBackground($(mtPrice).val(price));
+      }
+
+      if ($(mtDesc).val() !== description) {
+        highlightBackground($(mtDesc).val(description));
+      }
+
+      // Address notice because can't change it in MT yet
       confirm("You need to change the address if this machine's location has changed.");
     }
   }
