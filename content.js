@@ -10,9 +10,9 @@ var eaREGEX  = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
 var mtREGEX  = (/\w+:\/\/dscrm.sandhills.\w+\/*\S*/i);
 var siteURL  = document.URL;
 
-// Load show inventory button and sidebar into page DOM
-window.onload = loadButton();
+// Load sidebar into page DOM
 window.onload = loadSidebar();
+// Loads script to display tables on MT websites
 if (mtREGEX.test(siteURL)) {
   var tableScriptLoaded;
   function loadDisplayTableScript() {
@@ -37,45 +37,6 @@ function displayTables() {
     tables[i].style.display = 'block';
   }
 }
-
-// Load button function
-var buttonDisplayed;
-function loadButton() {
-  var inventoryButton = document.createElement('div');
-  inventoryButton.id = "showInventoryButton";
-  $(inventoryButton).html("<p class='copy' hidden>Copy it.</p>")
-  $(inventoryButton).css({
-    'position': 'fixed',
-    'top': '30px',
-    'right': '0px',
-    'width': '100px',
-    'height': '40px',
-    'background': '#4A5063',
-    'color': '#EEE',
-    'text-align': 'center',
-    'font-size': '14px',
-    'font-family': '"Helvetica", "Arial", "sans-serif"',
-    'box-shadow': '1px 2px 5px black',
-    'border-radius':'2px 0 0 2px',
-    'cursor': 'pointer',
-    'display': 'none'
-  });
-  document.body.appendChild(inventoryButton);
-  buttonDisplayed = false;
-}
-
-// Hover state for button
-$('#showInventoryButton').hover(function(){
-    $(this).animate({'width': '125px',
-                     'background-color': '#3B404F',
-                     'color': '#FFF',
-                     }, 500);
-  }, function() {
-    $(this).animate({'width': '100px',
-                     'background-color': '#4A5063',
-                     'color': '#EEE',
-                     }, 500);
-});
 
 // Load sidebar function
 var sidebarOpen;
@@ -119,7 +80,7 @@ function loadSidebar() {
         var JSONphone     = json.phone;
         var JSONeaAccount = json.equipment_alley_account;
         $('#inventory').append(
-          "<tr class='machine-preview'>" +
+          "<tr class='sidebar-preview'>" +
             "<td class='machine-preview-cell' colspan='3' id='" + stock_number + "'>" +
               "<strong class='stock-number' id='" + stock_number + "'>" + stock_number + "</strong>" + " " +
               "<small id='" + stock_number + "'>" +
@@ -127,11 +88,11 @@ function loadSidebar() {
               "</small>" + " " +
             "</td>" +
             "<td>" +
-              "<span class='copy-machine' id='" + stock_number + "'>Copy</span>" +
+              "<span class='copy-machine copy-machine-sidebar' id='" + stock_number + "'>Copy</span>" +
             "</td>" +
           "</tr>" +
           // hidden values
-          "<tr class='machine-preview-stats' id='machine_" + stock_number + "' hidden>" +
+          "<tr>" +
             "<td id='" + stock_number + "_make' hidden>" + value['machine_make'] + "</td>" +
             "<td id='" + stock_number + "_model' hidden>" + value['machine_model'] + "</td>" +
             "<td id='" + stock_number + "_type' hidden>" + value['machine_type'] + "</td>" +
@@ -150,6 +111,7 @@ function loadSidebar() {
         );
       });
       stockNumberArray.push(stock_number);
+      console.log('stock numbers loaded');
     });
   });
   sidebarOpen = false;
@@ -175,15 +137,21 @@ function loadSidebar() {
   // Iterates through stockNumberArray and checks to see if it's present on page, if so displays button
   streamlineDataCall.done(function() {
     $(stockNumberArray).each(function(index, value) {
-      sidebarStockNumber = value;
+
       if (elsREGEX.test(siteURL)) {
-        pageStockNumber = $('#EQUIPMENT_stock').val();
-        compareStockNumber();
+        setTimeout(function() {
+          pageStockNumber = $('#EQUIPMENT_stock').val();
+          compareStockNumber();
+        }, 2000);
       }
+
       if (eaREGEX.test(siteURL)) {
-        pageStockNumber = $('#STOCK').val();
-        compareStockNumber();
+        setTimeout(function() {
+          pageStockNumber = $('#STOCK').val();
+          compareStockNumber();
+        }, 2000);
       }
+
       if (mtREGEX.test(siteURL)) {
         setTimeout(function() {
           $iFrameContents = $('#contentIFrame').contents();
@@ -194,16 +162,78 @@ function loadSidebar() {
       }
 
       function compareStockNumber() {
-        if (pageStockNumber === sidebarStockNumber) {
-          $('#showInventoryButton').show('slide', {'direction': 'right'}, function() {
-            $('.copy').show('fade', 'slow');
-            buttonDisplayed = true;
-          });
+        if (pageStockNumber === value) {
+          // Append table for each stock number to body
+          var machineMake  = $('#' + value + '_make').html();
+          var machineModel = $('#' + value + '_model').html();
+          var machineType  = $('#' + value + '_type').html();
+          $('body').append(
+            "<table class='inventory-table-preview' id='" + value + "_button'>" +
+              "<tbody id='inventory'>" +
+                "<tr class='machine-preview'>" +
+                  "<td class='machine-preview-cell' colspan='3' id='" + value + "'>" +
+                    "<strong class='stock-number' id='" + value + "'>" +
+                      "Stock" + " " + value +
+                    "</strong>" + " " +
+                    "<small id='" + value + "'>" +
+                      machineMake + " " + machineModel + " " + machineType +
+                    "</small>" + " " +
+                  "</td>" +
+                  "<td>" +
+                    "<span class='copy-machine'>Copy</span>" +
+                  "</td>" +
+                "</tr>" +
+              "</tbody>" +
+            "</table>"
+          );
+          $('#' + value + '_button').show('slide', {'direction': 'right'});
         }
       }
     });
+
+    if (elsREGEX.test(siteURL)) {
+      pageStockNumber = $('#EQUIPMENT_stock').val();
+    }
+
+    if (eaREGEX.test(siteURL)) {
+      pageStockNumber = $('#STOCK').val();
+    }
+
+    if (mtREGEX.test(siteURL)) {
+      $iFrameContents = $('#contentIFrame').contents();
+      mtStockNumber   = $iFrameContents.find('#sads_stocknumber');
+      pageStockNumber = mtStockNumber.val();
+    }
+
+    if (pageStockNumber === "") {
+      $('body').append(
+        "<table class='inventory-table-preview' id='add-new-machine'>" +
+          "<tbody id='inventory'>" +
+            "<tr class='machine-preview'>" +
+              "<td class='add-machine-preview-cell'>" +
+                "<span>Add from your inventory ></span>" +
+              "</td>" +
+            "</tr>" +
+          "</tbody>" +
+        "</table>"
+      );
+      // Display add new button
+      $('#add-new-machine').show('slide', {'direction': 'right'});
+    }
   });
 }
+
+
+// Hover state for copy cell NOT WORKING
+// $('#29134_button').on('hover', function(){
+//     // cellWidth = $('#29134_button').width();
+//     // hoverCellWidth = cellWidth * 1.1;
+//     $('#29134_button').animate({'border': '3px solid red',
+//                      }, 500);
+//   }, function() {
+//     $('#29134_button').animate({'width': '100px',
+//                      }, 500);
+// });
 
 // Clears stock number array and runs loadSidebar (for EA since page doesn't reload)
 function resetSidebar() {
@@ -212,11 +242,12 @@ function resetSidebar() {
 }
 
 // Hides button when certain buttons clicked since EA page doesn't reload in between stock numbers
-function hideButton() {
-  $('#showInventoryButton').hide('fade', 'fast');
-  $('.copy').hide('fade', 'fast');
-  buttonDisplayed = false;
-}
+// NEED TO CHANGE THIS TO THE COPY CELL FOR EA
+// function hideButton() {
+//   $('#showInventoryButton').hide('fade', 'fast');
+//   $('.copy').hide('fade', 'fast');
+//   buttonDisplayed = false;
+// }
 
 // Loads sidebar and checks stock numbers when clicking into a machine on EA
 $(document).on('click', '#offertab1', resetSidebar);
@@ -225,14 +256,12 @@ $(document).on('click', '#offertab4', resetSidebar);
 $(document).on('click', '#offertab5', resetSidebar);
 
 // Hides inventory button when clicking 'go' or 'active equipment' buttons on EA
-$(document).on('click', '#g1', hideButton);
-$(document).on('click', '#tm_sell', hideButton);
+// $(document).on('click', '#g1', hideButton);
+// $(document).on('click', '#tm_sell', hideButton);
 
-// Click button to toggle sidebar and remove button
-$(document).on('click', '#showInventoryButton', function() {
+// Click add machine to toggle sidebar
+$(document).on('click', '#add-new-machine', function() {
   toggleSidebar();
-  $('#showInventoryButton').hide();
-  buttonDisplayed = false;
 });
 
 // Toggle sidebar display
@@ -259,8 +288,6 @@ function toggleSidebar() {
 // Click 'x' to close sidebar
 $(document).on('click', '#close-popup', function() {
   toggleSidebar();
-  $('#showInventoryButton').show();
-  buttonDisplayed = true;
 });
 
 // Create function to change background color to DRY up code below
@@ -286,14 +313,7 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
 
   // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
-    if ($('#EQUIPMENT_stock').val() !== stock_number) {
-      confirm("Are you sure you want to copy" + " " +
-              stock_number + " " +
-              "into stock number" + " " +
-              $('#EQUIPMENT_stock').val() + "?"
-      );
-    }
-    else if ($('#EQUIPMENT_stock').val() === stock_number) {
+    if ($('#EQUIPMENT_stock').val() === stock_number || $('#EQUIPMENT_stock').val() === "") {
       if ($('#EQUIPMENT_control').val() !== phone) {
         highlightBackground($('#EQUIPMENT_control').val(phone));
       }
@@ -333,19 +353,15 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       if ($('#EQUIP_NOTE_note').val() !== description) {
         highlightBackground($('#EQUIP_NOTE_note').val(description));
       }
+
+    } else {
+      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
     }
   }
 
   // Equipment Alley autofill
   if (eaREGEX.test(siteURL)) {
-    if ($('#STOCK').val() !== stock_number) {
-      confirm("Are you sure you want to copy" + " " +
-              stock_number + " " +
-              "into stock number" + " " +
-              $('#EQUIPMENT_stock').val() + "?"
-      );
-    }
-    else if ($('#STOCK').val() === stock_number) {
+    if ($('#STOCK').val() === stock_number || $('#STOCK').val() === "") {
       if ($('#Se_CategoryID').val() === "") {
         alert("You haven't chosen a category. Please select something first.");
       }
@@ -386,13 +402,16 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
       }
 
       if ($('#_RETAIL_PRICE').val() !== price) {
-        highlightBackground($('#_RETAIL_PRICE').val(price));
-        $('#_RETAIL_PRICE').change();
+        // highlightBackground($('#_RETAIL_PRICE').val(price));
+        // $('#_RETAIL_PRICE').change();
       }
 
       if ($('[name="DESCRIPTION"]').val() !== description) {
         highlightBackground($('[name="DESCRIPTION"]').val(description));
       }
+
+    } else {
+      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
     }
   }
 
@@ -414,14 +433,7 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
     var mtPrice  = $contentIFrameContents.find('#sads_price');
     var mtDesc   = $contentIFrameContents.find('#sads_description');
 
-    if (mtStockNumber.val() !== stock_number) {
-      confirm("Are you sure you want to copy" + " " +
-              stock_number + " " +
-              "into stock number" + " " +
-              $('#EQUIPMENT_stock').val() + "?"
-      );
-    }
-    else if (mtStockNumber.val() === stock_number) {
+    if (mtStockNumber.val() === stock_number || mtStockNumber.val() === "") {
       displayTables();
 
       if ($(mtType).val() === "") {
@@ -459,6 +471,9 @@ $(document).on('click', '.machine-preview-cell', function(btn) {
 
       // Address notice because can't change it in MT yet
       confirm("You need to change the address if this machine's location has changed.");
+
+    } else {
+      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
     }
   }
 });
