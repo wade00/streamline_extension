@@ -1,9 +1,7 @@
 .inventory-table-preview {
-  background: #6E7382;
+  background: #EEE;
   border-collapse: collapse;
-  border-bottom: 4px solid #4A5063;
-  border-left: 4px solid #4A5063;
-  border-top: 4px solid #4A5063;
+  border-bottom: 4px solid #6E7382;
   box-shadow: 1px 2px 5px black;
   display: none;
   font-family: Helvetica, 'sans-serif';
@@ -83,17 +81,13 @@
 
 .machine-preview {
   height: 50px;
-  border-top: 1px solid #4D5463;
   font-weight: 100;
 }
 
 .machine-preview:hover {
-  background: #394152;
   height: 50px;
   color: #EFF1F4;
-  border-bottom: 4px solid #394152;
-  border-left: 4px solid #BEA63F;
-  border-top: 4px solid #394152;
+  border-bottom: 4px solid #47C282;
 }
 
 .machine-preview:hover .copy-machine {
@@ -111,7 +105,7 @@
 .sidebar-preview:hover {
   background: #394152;
   height: 50px;
-  color: #EFF1F4;
+  color: #6E7382;
   border-left: 4px solid #BEA63F;
 }
 
@@ -135,7 +129,7 @@
 }
 
 .machine-preview-cell small {
-  color: #BBB;
+  color: #6E7382;
   font-size: 12px;
   font-family: "Helvetica", "sans-serif";
 }
@@ -160,7 +154,7 @@
 }
 
 .stock-number {
-  color: #EFF1F4;
+  color: #6E7382;
   font-size: 16px;
   font-family: "Helvetica", "sans-serif";
   font-weight: 300;
@@ -169,7 +163,7 @@
 }
 
 .copy-machine {
-  color: #BEA63F;
+  color: #47C282;
   cursor: pointer;
   display: table-cell;
   font-family: "Helvetica", "sans-serif";

@@ -4,7 +4,7 @@
     "description": "Update machine listings on select sites in no time",
     "version": "0.1",
     "offline_enabled": true,
-    "permissions": ["tabs"],
+    "permissions": ["tabs", "https://dscrm.sandhills.com/*"],
 
     "background": {
         "persistent": false,
@@ -16,7 +16,9 @@
                     "https://*.equipmentalley.com/*",
                     "https://dscrm.sandhills.com/*"],
         "js": ["jquery.js", "jquery-ui.js", "content.js"],
-        "css": ["sidebar.css"]
+        "css": ["sidebar.css", "dialog.css"],
+        "all_frames": true,
+        "run_at": "document_idle"
     }],
 
     "page_action": {

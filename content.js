@@ -1,18 +1,29 @@
-// Inform the backgrund page that this tab should have a page-action
-chrome.runtime.sendMessage({
-  from:    'content',
-  subject: 'showPageAction'
-});
-
 // Sets regexs for sites and stores tab url in variable
 var elsREGEX = (/\w+:\/\/\w+.equipmentlocator.\w+\/*\w*/i);
 var eaREGEX  = (/\w+:\/\/\w+.equipmentalley.\w+\/*\w*/i);
 var mtREGEX  = (/\w+:\/\/dscrm.sandhills.\w+\/*\S*/i);
 var siteURL  = document.URL;
 
+// Inform the backgrund page that this tab should have a page-action
+chrome.runtime.sendMessage({
+  from:    'content',
+  subject: 'showPageAction'
+});
+
 // Load sidebar into page DOM
 window.onload = loadSidebar();
-// Loads script to display tables on MT websites
+
+// Shows all tables in MT edit form
+function displayTables() {
+  var iFrame = document.getElementById('contentIFrame');
+  var frameContents = iFrame.contentDocument;
+  var tables = frameContents.getElementsByClassName('ms-crm-InlineTabBody');
+  for (var i = 0; i < tables.length; i++) {
+    tables[i].style.display = 'block';
+  }
+}
+
+// // Loads script to display tables on MT websites
 if (mtREGEX.test(siteURL)) {
   var tableScriptLoaded;
   function loadDisplayTableScript() {
@@ -29,13 +40,26 @@ if (mtREGEX.test(siteURL)) {
   window.onload = loadDisplayTableScript();
 }
 
-function displayTables() {
-  var iFrame = document.getElementById('contentIFrame');
-  var frameContents = iFrame.contentDocument;
-  var tables = frameContents.getElementsByClassName('ms-crm-InlineTabBody');
-  for (var i = 0; i < tables.length; i++) {
-    tables[i].style.display = 'block';
+// Triggers blur action to format EA price field
+function triggerPriceFormat() {
+  document.getElementById('_RETAIL_PRICE').blur();
+}
+
+// Loads script to format EA price field
+if (eaREGEX.test(siteURL)) {
+  var priceFormatScriptLoaded;
+  function loadPriceFormatScript() {
+    if (priceFormatScriptLoaded) {
+      (document.body || document.head || document.documentElement).removeChild(script);
+      priceFormatScriptLoaded = false;
+    }
+
+    var script = document.createElement('script');
+    script.appendChild(document.createTextNode(triggerPriceFormat));
+    (document.body || document.head || document.documentElement).appendChild(script);
+    priceFormatScriptLoaded = true;
   }
+  window.onload = loadPriceFormatScript();
 }
 
 // Load sidebar function
@@ -223,18 +247,6 @@ function loadSidebar() {
   });
 }
 
-
-// Hover state for copy cell NOT WORKING
-// $('#29134_button').on('hover', function(){
-//     // cellWidth = $('#29134_button').width();
-//     // hoverCellWidth = cellWidth * 1.1;
-//     $('#29134_button').animate({'border': '3px solid red',
-//                      }, 500);
-//   }, function() {
-//     $('#29134_button').animate({'width': '100px',
-//                      }, 500);
-// });
-
 // Clears stock number array and runs loadSidebar (for EA since page doesn't reload)
 function resetSidebar() {
   stockNumberArray.length = 0;
@@ -297,183 +309,263 @@ function highlightBackground(field) {
 
 // Auto fills when table row is clicked in sidebar
 $(document).on('click', '.machine-preview-cell', function(btn) {
-  var stock_number = btn.target.id;
-  var year         = $('#' + stock_number + '_year').html();
-  var make         = $('#' + stock_number + '_make').html();
-  var model        = $('#' + stock_number + '_model').html();
-  var type         = $('#' + stock_number + '_type').html();
-  var serial       = $('#' + stock_number + '_serial').html();
-  var hours        = $('#' + stock_number + '_hours').html();
-  var price        = $('#' + stock_number + '_price').html();
-  var city         = $('#' + stock_number + '_city').html();
-  var state        = $('#' + stock_number + '_state').html();
-  var phone        = $('#' + stock_number + '_phone').html();
-  var eaAccount    = $('#' + stock_number + '_eaAccount').html();
-  var description  = $('#' + stock_number + '_description').html();
+  var stockNumber = btn.target.id;
 
   // Equipment Locator autofill
   if (elsREGEX.test(siteURL)) {
-    if ($('#EQUIPMENT_stock').val() === stock_number || $('#EQUIPMENT_stock').val() === "") {
-      if ($('#EQUIPMENT_control').val() !== phone) {
-        highlightBackground($('#EQUIPMENT_control').val(phone));
-      }
-
-      if ($('#EQUIPMENT_year').val() !== year) {
-        highlightBackground($('#EQUIPMENT_year').val(year));
-      }
-
-      if ($('#EQUIPMENT_make').val() !== make) {
-        highlightBackground($('#EQUIPMENT_make').val(make));
-      }
-
-      if ($('#EQUIPMENT_model').val() !== model) {
-        highlightBackground($('#EQUIPMENT_model').val(model));
-      }
-
-      if ($('#EQUIPMENT_serial').val() !== serial) {
-        highlightBackground($('#EQUIPMENT_serial').val(serial));
-      }
-
-      if ($('#EQUIPMENT_hrs').val() !== hours) {
-        highlightBackground($('#EQUIPMENT_hrs').val(hours));
-      }
-
-      if ($('#EQUIPMENT_price').val() !== price) {
-        highlightBackground($('#EQUIPMENT_price').val(price));
-      }
-
-      if ($('#EQUIPMENT_ecity').val() !== city) {
-        highlightBackground($('#EQUIPMENT_ecity').val(city));
-      }
-
-      if ($('#EQUIPMENT_estate').val() !== state) {
-        highlightBackground($('#EQUIPMENT_estate').val(state));
-      }
-
-      if ($('#EQUIP_NOTE_note').val() !== description) {
-        highlightBackground($('#EQUIP_NOTE_note').val(description));
-      }
-
-    } else {
-      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
-    }
+    elsAutoFill(stockNumber);
   }
 
   // Equipment Alley autofill
   if (eaREGEX.test(siteURL)) {
-    if ($('#STOCK').val() === stock_number || $('#STOCK').val() === "") {
-      if ($('#Se_CategoryID').val() === "") {
-        alert("You haven't chosen a category. Please select something first.");
-      }
-
-      if ($('#MFG').val() === "") {
-        alert("You haven't chosen a manufacturer. Please select something first.");
-      }
-
-      if ($('#MODEL').val() !== model) {
-        highlightBackground($('#MODEL').val(model));
-      }
-
-      if ($('#YEAR').val() !== year) {
-        highlightBackground($('#YEAR').val(year));
-      }
-
-      if ($('#SERIAL').val() !== serial) {
-        highlightBackground($('#SERIAL').val(serial));
-      }
-
-      if ($('#HOURS').val() !== hours) {
-        highlightBackground($('#HOURS').val(hours));
-      }
-
-      if ($('#_Location').val() !== eaAccount) {
-        // highlightBackground($('#_Location').val(eaAccount));
-        // var locationSelect = $(document).find('#_Location');
-        // locationSelect.change();
-        // function changeLocation() {
-        //   highlightBackground($('#_Location').val(eaAccount));
-        //   var locationSelect = $(document).find('#_Location');
-        //   locationSelect.change();
-        // }
-
-        // var script = document.createElement('script');
-        // script.appendChild(document.createTextNode('('+ changeLocation +')();'));
-        // (document.body || document.head || document.documentElement).appendChild(script);
-      }
-
-      if ($('#_RETAIL_PRICE').val() !== price) {
-        // highlightBackground($('#_RETAIL_PRICE').val(price));
-        // $('#_RETAIL_PRICE').change();
-      }
-
-      if ($('[name="DESCRIPTION"]').val() !== description) {
-        highlightBackground($('[name="DESCRIPTION"]').val(description));
-      }
-
-    } else {
-      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
-    }
+    eaAutoFill(stockNumber);
   }
 
   // Machinery Trader DSCRM autofill
   if (mtREGEX.test(siteURL)) {
-
-    // Find iframes on page
-    var $contentIFrameContents = $('#contentIFrame').contents();
-    var $iframeCatMakeModelContents = $contentIFrameContents.find('#IFRAME_CatMakeModel').contents();
-    var $iframeSpecsContents = $contentIFrameContents.find('#IFRAME_Specs').contents();
-
-    var mtStockNumber = $contentIFrameContents.find('#sads_stocknumber');
-    var mtYear   = $contentIFrameContents.find('#sads_year');
-    var mtMake   = $iframeCatMakeModelContents.find('#crm_ddlManufacturer'); // text field - select if nec
-    var mtModel  = $iframeCatMakeModelContents.find('#crm_ddlModel'); // text field - use select if nec
-    var mtType   = $iframeCatMakeModelContents.find('#crm_ddlCategory'); // select - need to log values
-    var mtSerial = $contentIFrameContents.find('#sads_serialnumber');
-    var mtHours  = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
-    var mtPrice  = $contentIFrameContents.find('#sads_price');
-    var mtDesc   = $contentIFrameContents.find('#sads_description');
-
-    if (mtStockNumber.val() === stock_number || mtStockNumber.val() === "") {
-      displayTables();
-
-      if ($(mtType).val() === "") {
-        alert("You haven't chosen a category. Please select something first.");
-      }
-
-      if ($(mtYear).val() !== parseInt(year) - 1899) {
-        highlightBackground($(mtYear).val(parseInt(year) - 1899)); // option select
-      }
-
-      if ($(mtMake).val() !== make.toUpperCase()) {
-        highlightBackground($(mtMake).val(make.toUpperCase()));
-      }
-
-      if ($(mtModel).val() !== model) {
-        highlightBackground($(mtModel).val(model));
-      }
-
-      if ($(mtSerial).val() !== serial) {
-        confirm('Are you sure you want to change the serial number?');
-        highlightBackground($(mtSerial).val(serial));
-      }
-
-      if ($(mtHours).val() !== hours) {
-        highlightBackground($(mtHours).val(hours));
-      }
-
-      if ($(mtPrice).val() !== price) {
-        highlightBackground($(mtPrice).val(price));
-      }
-
-      if ($(mtDesc).val() !== description) {
-        highlightBackground($(mtDesc).val(description));
-      }
-
-      // Address notice because can't change it in MT yet
-      confirm("You need to change the address if this machine's location has changed.");
-
-    } else {
-      alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
-    }
+    mtAutoFill(stockNumber);
   }
 });
+
+function elsAutoFill(extensionStockNumber) {
+  var year         = $('#' + extensionStockNumber + '_year').html();
+  var make         = $('#' + extensionStockNumber + '_make').html();
+  var model        = $('#' + extensionStockNumber + '_model').html();
+  var serial       = $('#' + extensionStockNumber + '_serial').html();
+  var hours        = $('#' + extensionStockNumber + '_hours').html();
+  var price        = $('#' + extensionStockNumber + '_price').html();
+  var city         = $('#' + extensionStockNumber + '_city').html();
+  var state        = $('#' + extensionStockNumber + '_state').html();
+  var phone        = $('#' + extensionStockNumber + '_phone').html();
+  var location     = $('#' + extensionStockNumber + '_city').html();
+  var description  = $('#' + extensionStockNumber + '_description').html();
+  var changedFields = []
+
+  if ($('#EQUIPMENT_stock').val() === extensionStockNumber || $('#EQUIPMENT_stock').val() === "") {
+    if ($('#EQUIPMENT_control').val() !== phone) {
+      highlightBackground($('#EQUIPMENT_control').val(phone));
+    }
+
+    if ($('#EQUIPMENT_year').val() !== year) {
+      highlightBackground($('#EQUIPMENT_year').val(year));
+    }
+
+    if ($('#EQUIPMENT_make').val() !== make) {
+      highlightBackground($('#EQUIPMENT_make').val(make));
+    }
+
+    if ($('#EQUIPMENT_model').val() !== model) {
+      highlightBackground($('#EQUIPMENT_model').val(model));
+    }
+
+    if ($('#EQUIPMENT_serial').val() !== serial) {
+      confirm('Are you sure you want to change the serial number?');
+      highlightBackground($('#EQUIPMENT_serial').val(serial));
+    }
+
+    if ($('#EQUIPMENT_hrs').val() !== hours) {
+      highlightBackground($('#EQUIPMENT_hrs').val(hours));
+      changedFields.push("<strong>Hours</strong> changed to " + hours);
+    }
+
+    if ($('#EQUIPMENT_price').val() !== price) {
+      highlightBackground($('#EQUIPMENT_price').val(price));
+      changedFields.push("<strong>Price</strong> changed to " + price);
+    }
+
+    if ($('#EQUIPMENT_ecity').val() !== city) {
+      highlightBackground($('#EQUIPMENT_ecity').val(city));
+    }
+
+    if ($('#EQUIPMENT_estate').val() !== state) {
+      highlightBackground($('#EQUIPMENT_estate').val(state));
+    }
+
+    if ($('#EQUIP_NOTE_note').val() !== description) {
+      highlightBackground($('#EQUIP_NOTE_note').val(description));
+      changedFields.push("<strong>Description</strong> changed to " + description);
+    }
+
+  } else {
+    alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
+  }
+
+  var dialog = document.createElement('div');
+  dialog.id = "dialogBox";
+  $(dialog).html("<div class='dialogHeader'>The following fields were updated</div>\
+                  <div class='dialogBody'></div>\
+                  <div class='button-container'><a href='#' id='closeDialog'>Close</a></div>");
+  $('body').append(dialog);
+  $(changedFields).each(function(index, value) { $('.dialogBody').append('<div>' + value + '</div>') });
+  $('#dialogBox').fadeIn(500);
+
+  $('#closeDialog').click(function() {
+    $('#dialogBox').fadeOut(500);
+  })
+}
+
+function eaAutoFill(extensionStockNumber) {
+  var year         = $('#' + extensionStockNumber + '_year').html();
+  var model        = $('#' + extensionStockNumber + '_model').html();
+  var serial       = $('#' + extensionStockNumber + '_serial').html();
+  var hours        = $('#' + extensionStockNumber + '_hours').html();
+  var price        = $('#' + extensionStockNumber + '_price').html();
+  var eaAccount    = $('#' + extensionStockNumber + '_eaAccount').html();
+  var description  = $('#' + extensionStockNumber + '_description').html();
+
+  if ($('#STOCK').val() === extensionStockNumber || $('#STOCK').val() === "") {
+    if ($('#Se_CategoryID').val() === "") {
+      alert("You haven't chosen a category. Please select something first.");
+    }
+
+    // if ($('#YEAR').val() !== year) {
+    //   highlightBackground($('#YEAR').val(year));
+    // }
+
+    // if ($('#MFG').val() === "") {
+    //   alert("You haven't chosen a manufacturer. Please select something first.");
+    // }
+
+    // if ($('#MODEL').val() !== model) {
+    //   highlightBackground($('#MODEL').val(model));
+    // }
+
+
+    // if ($('#SERIAL').val() !== serial) {
+    //   confirm('Are you sure you want to change the serial number?');
+    //   highlightBackground($('#SERIAL').val(serial));
+    // }
+
+    // if ($('#HOURS').val() !== hours) {
+    //   highlightBackground($('#HOURS').val(hours));
+    // }
+
+    // if ($('#_Location').val() !== eaAccount) {
+    //   // highlightBackground($('#_Location').val(eaAccount));
+    // }
+
+    // if ($('#_RETAIL_PRICE').val() !== price) {
+    //   highlightBackground($('#_RETAIL_PRICE').val(price));
+    //   triggerPriceFormat();
+    // }
+
+    // if ($('[name="DESCRIPTION"]').val() !== description) {
+    //   highlightBackground($('[name="DESCRIPTION"]').val(description));
+    // }
+
+  } else {
+    alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
+  }
+}
+
+function mtAutoFill(extensionStockNumber) {
+  var year          = $('#' + extensionStockNumber + '_year').html();
+  var make          = $('#' + extensionStockNumber + '_make').html();
+  var model         = $('#' + extensionStockNumber + '_model').html();
+  var serial        = $('#' + extensionStockNumber + '_serial').html();
+  var hours         = $('#' + extensionStockNumber + '_hours').html();
+  var price         = $('#' + extensionStockNumber + '_price').html();
+  var description   = $('#' + extensionStockNumber + '_description').html();
+  var updatedFields = [];
+
+  var $contentIFrameContents = $('#contentIFrame').contents();
+  var $iframeCatMakeModelContents = $contentIFrameContents.find('#IFRAME_CatMakeModel').contents();
+  var $iframeSpecsContents   = $contentIFrameContents.find('#IFRAME_Specs').contents();
+
+  var mtStockNumber  = $contentIFrameContents.find('#sads_stocknumber');
+  var mtYear   = $contentIFrameContents.find('#sads_year');
+  var mtMake   = $iframeCatMakeModelContents.find('#crm_txtTypedManufacturer');
+  var mtMakeSelect   = $iframeCatMakeModelContents.find('#crm_ddlManufacturer');
+  var mtModel  = $iframeCatMakeModelContents.find('#crm_txtTypedModel');
+  var mtModelSelect  = $iframeCatMakeModelContents.find('#crm_ddlModel');
+  var mtType   = $iframeCatMakeModelContents.find('#crm_ddlCategory');
+  var mtSerial = $contentIFrameContents.find('#sads_serialnumber');
+  var mtHours  = $iframeSpecsContents.find('#crm_ctlSpecNamehours');
+  var mtPrice  = $contentIFrameContents.find('#sads_price');
+  var mtDesc   = $contentIFrameContents.find('#sads_description');
+  var crmFormSubmit  = $contentIFrameContents.find('#crmFormSubmit');
+  var crmFormSubmitXML  = $contentIFrameContents.find('#crmFormSubmitXml');
+  var crmFormSubmitMode = $contentIFrameContents.find('#crmFormSubmitMode');
+  var userSubmitted  = $contentIFrameContents.find('#crmFormUserModified');
+  var crmID    = $contentIFrameContents.find('#crmCmdId');
+
+  if (mtStockNumber.val() === extensionStockNumber || mtStockNumber.val() === "") {
+
+    if ($(mtType).val() === "") {
+      alert("You haven't chosen a category. We can't fill that so please select something first.");
+    }
+
+    // if (parseInt($(mtYear).val()) !== (parseInt(year) - 1899)) {
+    //   yearValue = parseInt(year) - 1899;
+    //   console.log(yearValue);
+    //   $(mtYear).val(yearValue); // option select
+    //   chrome.runtime.sendMessage({
+    //     from:    'content',
+    //     subject: 'mtFormFill',
+    //     field:   'mtYear',
+    //     value:   yearValue
+    //   });
+    // }
+
+    // if ($(mtMakeSelect).val() !== make.toUpperCase()) {
+    //   highlightBackground($(mtMakeSelect).val(make.toUpperCase()));
+    // }
+
+    // if ($(mtModelSelect).val() !== model) {
+    //   highlightBackground($(mtModel).val(model));
+    //   $(mtModelSelect).val("");
+    // }
+
+    // if ($(mtSerial).val() !== serial) {
+    //   if ($(mtSerial).val() !== "") {
+    //     if (confirm('Are you sure you want to change the serial number?') == true) {
+    //       highlightBackground($(mtSerial).val(serial));
+    //       chrome.runtime.sendMessage({
+    //         from:    'content',
+    //         subject: 'mtFormFill',
+    //         field:   'mtSerial',
+    //         value:   serial
+    //       });
+    //     }
+    //   } else {
+    //     highlightBackground($(mtSerial).val(serial));
+        // chrome.runtime.sendMessage({
+        //   from:    'content',
+        //   subject: 'mtFormFill',
+        //   field:   'mtSerial',
+        //   value:   serial
+        // });
+    //   }
+    // }
+
+    // if ($(mtHours).val() !== hours) {
+    //   highlightBackground($(mtHours).val(hours));
+    // }
+
+    if ($(mtPrice).val() !== price) {
+      highlightBackground($(mtPrice).val(price));
+      chrome.runtime.sendMessage({
+        from:    'content',
+        subject: 'mtFormFill',
+        field:   'mtPrice',
+        value:   price
+      });
+    }
+
+    // if ($(mtDesc).val() !== description) {
+    //   highlightBackground($(mtDesc).val(description));
+    //   chrome.runtime.sendMessage({
+    //     from:    'content',
+    //     subject: 'mtFormFill',
+    //     field:   'mtDesc',
+    //     value:   description
+    //   });
+    // }
+
+  //   // Address notice because can't change it in MT yet
+  //   alert("You need to change the address if this machine's location has changed.");
+
+  } else {
+    alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
+  }
+}
