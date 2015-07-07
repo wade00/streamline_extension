@@ -418,40 +418,40 @@ function eaAutoFill(extensionStockNumber) {
       alert("You haven't chosen a category. Please select something first.");
     }
 
-    // if ($('#YEAR').val() !== year) {
-    //   highlightBackground($('#YEAR').val(year));
-    // }
+    if ($('#YEAR').val() !== year) {
+      highlightBackground($('#YEAR').val(year));
+    }
 
-    // if ($('#MFG').val() === "") {
-    //   alert("You haven't chosen a manufacturer. Please select something first.");
-    // }
+    if ($('#MFG').val() === "") {
+      alert("You haven't chosen a manufacturer. Please select something first.");
+    }
 
-    // if ($('#MODEL').val() !== model) {
-    //   highlightBackground($('#MODEL').val(model));
-    // }
+    if ($('#MODEL').val() !== model) {
+      highlightBackground($('#MODEL').val(model));
+    }
 
 
-    // if ($('#SERIAL').val() !== serial) {
-    //   confirm('Are you sure you want to change the serial number?');
-    //   highlightBackground($('#SERIAL').val(serial));
-    // }
+    if ($('#SERIAL').val() !== serial) {
+      confirm('Are you sure you want to change the serial number?');
+      highlightBackground($('#SERIAL').val(serial));
+    }
 
-    // if ($('#HOURS').val() !== hours) {
-    //   highlightBackground($('#HOURS').val(hours));
-    // }
+    if ($('#HOURS').val() !== hours) {
+      highlightBackground($('#HOURS').val(hours));
+    }
 
-    // if ($('#_Location').val() !== eaAccount) {
-    //   // highlightBackground($('#_Location').val(eaAccount));
-    // }
+    if ($('#_Location').val() !== eaAccount) {
+      highlightBackground($('#_Location').val(eaAccount));
+    }
 
-    // if ($('#_RETAIL_PRICE').val() !== price) {
-    //   highlightBackground($('#_RETAIL_PRICE').val(price));
-    //   triggerPriceFormat();
-    // }
+    if ($('#_RETAIL_PRICE').val() !== price) {
+      highlightBackground($('#_RETAIL_PRICE').val(price));
+      triggerPriceFormat();
+    }
 
-    // if ($('[name="DESCRIPTION"]').val() !== description) {
-    //   highlightBackground($('[name="DESCRIPTION"]').val(description));
-    // }
+    if ($('[name="DESCRIPTION"]').val() !== description) {
+      highlightBackground($('[name="DESCRIPTION"]').val(description));
+    }
 
   } else {
     alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
@@ -495,52 +495,52 @@ function mtAutoFill(extensionStockNumber) {
       alert("You haven't chosen a category. We can't fill that so please select something first.");
     }
 
-    // if (parseInt($(mtYear).val()) !== (parseInt(year) - 1899)) {
-    //   yearValue = parseInt(year) - 1899;
-    //   console.log(yearValue);
-    //   $(mtYear).val(yearValue); // option select
-    //   chrome.runtime.sendMessage({
-    //     from:    'content',
-    //     subject: 'mtFormFill',
-    //     field:   'mtYear',
-    //     value:   yearValue
-    //   });
-    // }
+    if (parseInt($(mtYear).val()) !== (parseInt(year) - 1899)) {
+      yearValue = parseInt(year) - 1899;
+      console.log(yearValue);
+      $(mtYear).val(yearValue); // option select
+      chrome.runtime.sendMessage({
+        from:    'content',
+        subject: 'mtFormFill',
+        field:   'mtYear',
+        value:   yearValue
+      });
+    }
 
-    // if ($(mtMakeSelect).val() !== make.toUpperCase()) {
-    //   highlightBackground($(mtMakeSelect).val(make.toUpperCase()));
-    // }
+    if ($(mtMakeSelect).val() !== make.toUpperCase()) {
+      highlightBackground($(mtMakeSelect).val(make.toUpperCase()));
+    }
 
-    // if ($(mtModelSelect).val() !== model) {
-    //   highlightBackground($(mtModel).val(model));
-    //   $(mtModelSelect).val("");
-    // }
+    if ($(mtModelSelect).val() !== model) {
+      highlightBackground($(mtModel).val(model));
+      $(mtModelSelect).val("");
+    }
 
-    // if ($(mtSerial).val() !== serial) {
-    //   if ($(mtSerial).val() !== "") {
-    //     if (confirm('Are you sure you want to change the serial number?') == true) {
-    //       highlightBackground($(mtSerial).val(serial));
-    //       chrome.runtime.sendMessage({
-    //         from:    'content',
-    //         subject: 'mtFormFill',
-    //         field:   'mtSerial',
-    //         value:   serial
-    //       });
-    //     }
-    //   } else {
-    //     highlightBackground($(mtSerial).val(serial));
-        // chrome.runtime.sendMessage({
-        //   from:    'content',
-        //   subject: 'mtFormFill',
-        //   field:   'mtSerial',
-        //   value:   serial
-        // });
-    //   }
-    // }
+    if ($(mtSerial).val() !== serial) {
+      if ($(mtSerial).val() !== "") {
+        if (confirm('Are you sure you want to change the serial number?') == true) {
+          highlightBackground($(mtSerial).val(serial));
+          chrome.runtime.sendMessage({
+            from:    'content',
+            subject: 'mtFormFill',
+            field:   'mtSerial',
+            value:   serial
+          });
+        }
+      } else {
+        highlightBackground($(mtSerial).val(serial));
+        chrome.runtime.sendMessage({
+          from:    'content',
+          subject: 'mtFormFill',
+          field:   'mtSerial',
+          value:   serial
+        });
+      }
+    }
 
-    // if ($(mtHours).val() !== hours) {
-    //   highlightBackground($(mtHours).val(hours));
-    // }
+    if ($(mtHours).val() !== hours) {
+      highlightBackground($(mtHours).val(hours));
+    }
 
     if ($(mtPrice).val() !== price) {
       highlightBackground($(mtPrice).val(price));
@@ -552,18 +552,18 @@ function mtAutoFill(extensionStockNumber) {
       });
     }
 
-    // if ($(mtDesc).val() !== description) {
-    //   highlightBackground($(mtDesc).val(description));
-    //   chrome.runtime.sendMessage({
-    //     from:    'content',
-    //     subject: 'mtFormFill',
-    //     field:   'mtDesc',
-    //     value:   description
-    //   });
-    // }
+    if ($(mtDesc).val() !== description) {
+      highlightBackground($(mtDesc).val(description));
+      chrome.runtime.sendMessage({
+        from:    'content',
+        subject: 'mtFormFill',
+        field:   'mtDesc',
+        value:   description
+      });
+    }
 
   //   // Address notice because can't change it in MT yet
-  //   alert("You need to change the address if this machine's location has changed.");
+    alert("You need to change the address if this machine's location has changed.");
 
   } else {
     alert("Sorry, something went wrong. Check the stock number you're trying to copy.");
